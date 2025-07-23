@@ -8,115 +8,96 @@
 
 ## Abstract
 
-The OGCR API Specification defines a comprehensive framework for managing carbon removal projects through a hybrid architecture that combines off-chain registry operations with on-chain verification and tokenization. This specification establishes standardized data formats, API interfaces, and blockchain integration patterns that enable transparent, verifiable, and interoperable carbon removal registries.
-
-The specification builds upon established standards including GeoJSON [1], JSON Schema [2], and ERC-721 [3] to create an interoperable system that supports the full lifecycle of carbon removal projects from initial design through monitoring, verification, and credit issuance.
+The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON \[1], JSON Schema \[2], and ERC-721 \[3] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 \[4].
 
 ## 1. Introduction
 
 ### 1.1 Purpose and Scope
 
-The Carbon Registry Specification addresses the critical need for standardized, transparent, and verifiable carbon removal project management. As global climate commitments intensify and carbon markets mature, the demand for robust registry systems that can handle complex project lifecycles while maintaining data integrity has become paramount.
+This specification defines the functional and structural requirements for carbon removal registry systems. It establishes data formats, interface protocols, and lifecycle rules for managing project registration, monitoring, verification, and credit issuance. The framework is designed for interoperability with third-party systems, integration with public blockchains, and alignment with regulatory instruments such as the EU Carbon Removal Certification Regulation.
 
-This specification defines a modular architecture that separates concerns between business logic, data management, and blockchain verification. The system supports multiple project types including afforestation, soil carbon sequestration, direct air capture, and enhanced weathering, while providing extensibility for emerging methodologies.
-
-The scope encompasses project registration, monitoring and verification workflows, credit issuance and management, and integration with blockchain networks for immutable record-keeping. The specification prioritizes minimal data requirements to reduce barriers to entry while ensuring sufficient information for verification and compliance.
+The scope includes data structures for project design documents (PDD), monitoring and verification reports (MRV), and certified removal units (CRU); conformance rules for state transitions; and patterns for cryptographic anchoring. Support is provided for multiple removal types, including land-based and industrial processes.
 
 ### 1.2 Design Principles
 
-The Carbon Registry Specification is built on five core principles that guide all architectural decisions and implementation requirements.
+The specification is governed by five principles:
 
-**Minimalism and Usability** form the foundation of the specification. The system requires only essential information for project registration and operation, reducing administrative burden while maintaining verification integrity. User interfaces and API endpoints are designed for intuitive operation by both technical and non-technical stakeholders.
-
-**Extensibility and Future-Proofing** ensure the specification can adapt to evolving methodologies, regulatory requirements, and technological advances. The modular architecture allows for new project types, verification methods, and integration patterns without requiring fundamental system changes.
-
-**Transparency and Auditability** are achieved through comprehensive event logging, immutable record-keeping, and public access to verification data. All system actions are traceable, and stakeholders can independently verify project claims and credit authenticity.
-
-**Interoperability and Standards Compliance** enable integration with existing carbon market infrastructure, regulatory frameworks, and blockchain networks. The specification builds upon established standards and provides clear migration paths from legacy systems.
-
-**Security and Trust** are maintained through cryptographic verification, role-based access controls, and separation of sensitive operations. The hybrid architecture ensures that critical data remains secure while enabling necessary transparency.
+* **Minimality**: All data requirements SHALL support traceability, validation, and regulatory reporting, with no redundant fields.
+* **Extensibility**: The data model and API structure SHALL accommodate evolving methodologies and domain-specific extensions.
+* **Transparency**: All state changes SHALL be traceable, verifiable, and publicly inspectable.
+* **Interoperability**: The specification SHALL conform to open standards to ensure compatibility with geospatial, registry, and blockchain systems.
+* **Security**: Registry operations SHALL implement role-based access control and ensure cryptographic integrity of attestations.
 
 ### 1.3 Regulatory Context
 
-The specification aligns with emerging regulatory frameworks including the EU Carbon Removal Certification Regulation (EU) 2024/3012 [4], which establishes requirements for permanent carbon removals, carbon farming, and carbon storage verification. The regulation emphasizes the need for robust monitoring, reporting, and verification systems that can demonstrate additionality, permanence, and environmental integrity.
-
-Key regulatory requirements addressed by this specification include mandatory monitoring protocols, third-party verification, transparent reporting, and integration with national and international carbon accounting systems. The specification provides flexibility to accommodate varying regulatory requirements across jurisdictions while maintaining core interoperability.
+This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 \[4]. It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
 
 ## 2. System Architecture
 
 ### 2.1 Architectural Overview
 
-The Carbon Registry Specification employs a three-layer hybrid architecture that balances scalability, security, and transparency requirements. This design separates business logic from data storage and verification, enabling independent scaling and optimization of each component.
+A registry system conforming to this specification SHALL implement a three-layer architecture that separates interface logic, application state management, and verifiable state anchoring. Each layer SHALL be functionally distinct and interoperable with external systems and services.
 
 ![System Architecture](../diagrams/system-architecture-component.png)
 
-*Figure 1: OGCR API System Architecture - The three-layer hybrid architecture showing the separation between API layer, business logic, and blockchain verification components.*
+*Figure 1: Reference system architecture defining application, API, and ledger layers.*
 
-The **Application Layer** encompasses user interfaces, mobile applications, and third-party integrations that interact with the registry system. This layer handles user authentication, data presentation, and workflow management while abstracting the complexity of underlying systems.
+The **Application Layer** provides interfaces for human and machine actors. This includes web portals, mobile clients, and automated integrations. It SHALL support user interaction, identity delegation, and task coordination.
 
-The **API Layer** provides RESTful interfaces for all registry operations including project registration, monitoring data submission, verification workflows, and credit management. This layer implements business logic, data validation, access controls, and integration with external systems.
+The **API Layer** exposes a RESTful interface for lifecycle operations on registry artifacts. It SHALL implement validation, access control, schema enforcement, and canonical serialization. It MAY coordinate with external services for verification or monitoring.
 
-The **Blockchain Layer** maintains immutable records of critical system events, document hashes, and token operations. This layer provides cryptographic proof of data integrity, enables trustless verification, and supports decentralized governance mechanisms.
+The **Blockchain Layer** maintains immutable references to registry state. It SHALL record document hashes, lifecycle events, and token-related actions. Ledger anchoring MUST be cryptographically verifiable and support independent audit.
 
-### 2.2 Data Flow Architecture
+### 2.2 Data Flow
 
-Data flows through the system following clearly defined patterns that ensure consistency, auditability, and performance. Project data originates from developers and flows through validation, verification, and approval processes before reaching the blockchain layer for immutable storage.
+A conforming implementation SHALL support structured data flows for project registration, monitoring, verification, and issuance. Each transition SHALL be deterministic, auditable, and linked to a canonical document reference.
 
-**Project Registration Flow** begins with developers submitting Project Design Documents (PDDs) through the API layer. The system validates document structure, methodology compliance, and spatial requirements before generating cryptographic hashes and storing references on-chain. Approved projects receive unique identifiers that link all subsequent activities.
+**Project Registration** begins with the submission of a Project Design Document (PDD). The API layer SHALL validate schema conformance, methodology references, and geospatial footprint. Upon approval, a unique identifier SHALL be assigned and the document hash anchored on-chain.
 
-**Monitoring and Verification Flow** processes periodic monitoring reports that quantify carbon removal activities. Submitted data undergoes automated validation followed by third-party verification. Verified results trigger credit issuance processes and update project status records.
+**Monitoring and Verification** involves the submission of Monitoring, Reporting, and Verification (MRV) documents. These SHALL include quantified removals, methodology-specific inputs, and verifier attestations. Verified reports SHALL be linked to prior PDDs and recorded for audit and credit issuance.
 
-**Credit Management Flow** handles the creation, transfer, and retirement of carbon credits based on verified monitoring results. Credits are represented as blockchain tokens with metadata linking to underlying project data and verification reports.
+**Credit Management** includes the creation, transfer, and retirement of carbon removal attestations. These SHALL be represented as cryptographically bound units (e.g., tokens), linked to verified removals and anchored for lifecycle traceability.
 
 ### 2.3 Integration Patterns
 
-The specification defines standard integration patterns that enable interoperability with existing carbon market infrastructure, regulatory systems, and blockchain networks. These patterns provide flexibility while maintaining data consistency and security.
+The specification defines standard integration patterns for registry federation, blockchain abstraction, and third-party system interoperability.
 
-**Registry Federation** allows multiple registry instances to share data and recognize credits issued by partner systems. Federation protocols ensure that credits cannot be double-counted while enabling market liquidity and regulatory compliance across jurisdictions.
+**Registry Federation** enables interoperability between multiple registry implementations. Federated systems SHALL prevent double counting, preserve provenance, and maintain cross-jurisdictional coherence.
 
-**Blockchain Integration** supports multiple blockchain networks through standardized smart contract interfaces. The specification defines minimum requirements for on-chain data while allowing implementation-specific optimizations for gas efficiency and throughput.
+**Blockchain Integration** SHALL support verifiable anchoring of document state and token issuance. The specification defines minimum on-chain data requirements, while allowing optimizations for gas efficiency, throughput, and chain-agnostic deployments.
 
-**External System Integration** provides APIs for connecting with monitoring equipment, satellite data providers, verification bodies, and carbon market platforms. Standard data formats and authentication mechanisms ensure secure and reliable data exchange.
+**External System Integration** MAY include data providers, verifiers, or market actors. All integrations SHALL conform to standardized data schemas and authenticated communication protocols to ensure consistency and integrity.
 
 ## 3. Core Data Models
 
 ![Core Data Models](../diagrams/core-data-models-class.png)
+*Figure 4: UML class diagram of canonical document types and their relationships.*
 
-*Figure 4: Core Data Models - UML class diagram showing the relationships between Project Design Documents, MRV Documents, Carbon Credits, and supporting entities.*
+This specification defines three canonical document types used to represent project declarations, monitoring results, and verified removal units. All core documents SHALL be serialized as GeoJSON Features \[1] and SHALL follow schema constraints defined in the corresponding conformance classes.
 
 ### 3.1 Project Design Document (PDD)
 
-The Project Design Document serves as the foundational record for all carbon removal projects within the registry system. The PDD captures essential project information in a structured format that supports validation, monitoring, and verification activities throughout the project lifecycle.
+The Project Design Document (PDD) defines the initial parameters of a carbon removal project. It SHALL contain project geometry, activity classification, actor identifiers, and methodological references. The PDD establishes the scope against which monitoring, verification, and issuance processes are evaluated.
 
-The PDD extends the GeoJSON Feature specification [1] to provide spatial context while maintaining compatibility with existing geographic information systems. This approach enables spatial analysis, boundary verification, and integration with satellite monitoring systems.
+Each PDD SHALL conform to the GeoJSON Feature model and SHALL include a valid `geometry` field representing the project boundary in WGS84 coordinates. The `properties` object SHALL contain required fields including project name, type, actor ID, and methodology reference.
 
-Core PDD fields include project identification, geographic boundaries, methodology references, baseline scenarios, and expected outcomes. The specification requires minimal information to reduce barriers to entry while ensuring sufficient detail for verification and monitoring activities.
-
-**Spatial Requirements** mandate that all projects include precise geographic boundaries using WGS84 coordinates. Boundary data supports spatial analysis, overlap detection, and integration with remote sensing systems for monitoring verification.
-
-**Methodology Integration** requires projects to reference approved methodologies that define calculation procedures, monitoring requirements, and verification protocols. This approach ensures consistency while enabling innovation in carbon removal techniques.
-
-**Versioning and Immutability** mechanisms track changes to project documents while maintaining historical records. Once submitted for verification, PDDs become immutable to ensure audit trail integrity.
+PDDs SHALL reference approved methodologies that define quantification rules, monitoring requirements, and validation conditions. The PDD MAY include versioning metadata to track document evolution. Once validated, PDDs SHALL be immutable and anchored via cryptographic hash for audit purposes.
 
 ### 3.2 Monitoring, Reporting, and Verification (MRV)
 
-The MRV data model captures periodic monitoring results that quantify carbon removal activities and demonstrate compliance with methodology requirements. MRV documents link to parent PDDs and provide the basis for credit issuance decisions.
+The MRV document captures quantitative results from project monitoring and verification activities. Each MRV SHALL reference a single parent PDD and SHALL represent a defined monitoring period. Overlapping reporting periods for the same project SHALL be disallowed.
 
-**Temporal Structure** organizes monitoring data by reporting periods that align with methodology requirements and regulatory frameworks. Each MRV document covers a specific time period and cannot overlap with other reports for the same project.
+MRV documents SHALL include temporal coverage, methodology-specific inputs, calculated net removal values, and uncertainty estimates. Measurement types MAY include field observations, remote sensing outputs, or direct measurement instruments, subject to methodology compatibility.
 
-**Measurement Data** includes quantitative results from monitoring activities such as biomass measurements, soil carbon analysis, or direct air capture volumes. The specification accommodates various measurement types while requiring standardized units and uncertainty estimates.
-
-**Verification Records** document third-party verification activities including verifier credentials, verification procedures, and outcome determinations. Verification records provide the basis for credit issuance and regulatory compliance.
+Verification metadata SHALL be included for independently validated MRVs. This MAY contain verifier identity, accreditation ID, verification outcome, and date. Verified MRVs form the basis for issuance of removal attestations.
 
 ### 3.3 Carbon Removal Units (CRUs)
 
-Carbon Removal Units represent verified carbon removal quantities that can be traded, transferred, or retired for offsetting purposes. CRUs are implemented as non-fungible tokens (NFTs) that provide unique identification and traceability.
+Carbon Removal Units (CRUs) represent attested net removals of CO₂ equivalent. Each CRU SHALL be linked to a validated MRV and a parent PDD, and SHALL correspond to a quantifiable and verifiable removal amount.
 
-**Token Metadata** links each CRU to its originating project, monitoring period, and verification records. This metadata enables full traceability from credit to underlying carbon removal activity.
+CRUs SHALL be uniquely identifiable and SHALL include metadata that binds them to the underlying monitoring and verification context. Implementations MAY use token-based representations such as ERC-721 for lifecycle tracking, transferability, and retirement.
 
-**Lifecycle Management** tracks CRU status through creation, transfer, and retirement phases. Retired CRUs cannot be transferred or traded, ensuring that offset claims are permanent and verifiable.
-
-**Fractional Representation** allows large carbon removal quantities to be divided into smaller, tradeable units while maintaining traceability to source activities. This approach enhances market liquidity while preserving verification integrity.
+CRUs MAY be issued in fractional quantities where permitted by the registry. Each unit SHALL retain a one-to-one mapping to its provenance data. Retired CRUs SHALL be excluded from transfer and SHALL be cryptographically flagged as withdrawn from circulation.
 
 ## References
 
@@ -131,71 +112,69 @@ Carbon Removal Units represent verified carbon removal quantities that can be tr
 
 ### 4.1 API Design Philosophy
 
-The Carbon Registry Specification API follows RESTful principles with a focus on simplicity, consistency, and developer experience. The API design prioritizes minimal required parameters while providing comprehensive optional fields for advanced use cases.
+The OGCR API defines a resource-oriented interface for managing registry artifacts and lifecycle operations. All endpoints SHALL conform to REST architectural constraints and SHALL operate over standard HTTP verbs (`GET`, `POST`, `PUT`, `DELETE`).
 
-**Resource-Oriented Design** organizes API endpoints around core entities including projects, monitoring reports, and carbon credits. Each resource type supports standard HTTP methods (GET, POST, PUT, DELETE) with consistent behavior patterns across the system.
+The API SHALL expose resource collections for projects, monitoring reports, and removal units. Each resource type SHALL implement a consistent set of operations for creation, retrieval, update (where allowed), and archival.
 
-**Minimal Required Data** reduces barriers to entry by requiring only essential information for each operation. Optional fields provide extensibility for complex scenarios while maintaining simplicity for basic use cases.
+Implementations SHALL require only the minimum data necessary for conformance with the document schema and lifecycle rules. Optional fields MAY be used for extended functionality, provided they do not conflict with required validation logic.
 
-**Consistent Error Handling** provides standardized error responses with detailed information for debugging and user guidance. Error messages include specific field validation failures and suggested corrections.
+Error responses SHALL follow a uniform structure, including HTTP status codes, machine-readable error identifiers, and human-readable messages. Validation errors SHALL include field-level annotations and reason codes.
 
-**Comprehensive Documentation** ensures that all endpoints, parameters, and response formats are clearly documented with examples and use case descriptions. Interactive documentation enables developers to test API functionality during integration.
+The API interface, including endpoints, parameters, request/response structures, and authentication flows, SHALL be documented in a machine-readable format (e.g., OpenAPI). The documentation SHALL include example requests and expected responses for each operation.
 
 ### 4.2 Core API Endpoints
 
-The API provides endpoints for managing the complete lifecycle of carbon removal projects from initial registration through credit retirement. Each endpoint group handles a specific aspect of registry operations while maintaining consistency in authentication, validation, and response formats.
+The OGCR API defines a set of resource-oriented endpoints for managing the lifecycle of registry documents and issued carbon removal units. Each endpoint group corresponds to a distinct functional process: project registration, monitoring and verification, and credit issuance and retirement.
+
+All endpoints SHALL implement authenticated access, schema validation, and consistent response structures.
 
 #### 4.2.1 Project Management
 
-Project management endpoints handle the creation, modification, and lifecycle management of carbon removal projects. These endpoints support the submission and approval workflow while maintaining audit trails and version control.
+Project endpoints manage the creation, retrieval, update, and status tracking of carbon removal projects. A project is represented by a Project Design Document (PDD) and is associated with a unique identifier.
 
-**POST /projects** creates new carbon removal projects by accepting Project Design Documents in the standardized format. The endpoint validates document structure, methodology references, and spatial boundaries before assigning unique project identifiers and initiating the approval workflow.
+* **`POST /projects`**
+  Submits a new project to the registry. The request body SHALL conform to the canonical PDD schema. The system SHALL validate document structure, methodology reference, and spatial geometry. Upon acceptance, a unique project identifier SHALL be issued and the PDD SHALL enter the `submitted` state.
 
 ![Project Registration Workflow](../diagrams/project-registration-sequence.png)
+*Figure 2: Project registration lifecycle, from submission to validation and anchoring.*
 
-*Figure 2: Project Registration Sequence - The complete workflow showing interactions between project developers, API, validation services, and blockchain components during project registration.*
+* **`GET /projects/{projectId}`**
+  Retrieves the full project record, including document content, status, version history, and links to associated monitoring reports.
 
-Request validation includes schema compliance checking, methodology version verification, and spatial boundary validation. The system ensures that project boundaries do not overlap with existing approved projects and that referenced methodologies are current and approved.
+* **`PUT /projects/{projectId}`**
+  Updates a project document prior to validation. After validation, modifications SHALL be restricted to permitted metadata fields (e.g., contact information). All changes SHALL be versioned and timestamped.
 
-Response data includes the assigned project identifier, current status, validation results, and next steps in the approval process. Error responses provide detailed information about validation failures with specific field references and correction guidance.
-
-**GET /projects/{projectId}** retrieves complete project information including current status, approval history, and linked monitoring reports. The endpoint supports version-specific queries and provides access to historical project states for audit purposes.
-
-**PUT /projects/{projectId}** enables project updates during the draft and review phases. Once projects are approved, modifications are restricted to specific fields such as contact information and monitoring schedules. All changes are logged with timestamps and user attribution.
-
-**GET /projects** provides paginated access to project collections with filtering and search capabilities. Supported filters include project status, geographic regions, methodology types, and approval dates. The endpoint supports spatial queries for identifying projects within specific geographic areas.
+* **`GET /projects`**
+  Returns a paginated list of project entries. Query parameters MAY include status, methodology, actor, bounding box, and creation or approval date ranges.
 
 #### 4.2.2 Monitoring and Verification
 
-Monitoring and verification endpoints manage the submission, review, and approval of periodic monitoring reports that quantify carbon removal activities. These endpoints support the verification workflow while maintaining data integrity and audit trails.
+Monitoring endpoints handle submission and retrieval of monitoring reports (MRVs). Verification endpoints manage the attestation process by authorized verifiers.
 
-**POST /projects/{projectId}/monitoring** accepts monitoring reports for specific projects and reporting periods. The endpoint validates temporal boundaries, measurement data, and methodology compliance before initiating the verification workflow.
+* **`POST /projects/{projectId}/monitoring`**
+  Submits a monitoring report for the specified project. The report SHALL conform to the MRV schema and SHALL not overlap temporally with any existing MRV for the same project. The system SHALL validate schema conformance, reporting period boundaries, and methodology consistency.
 
 ![MRV Workflow](../diagrams/mrv-workflow-sequence.png)
+*Figure 3: MRV submission, verification, and issuance process.*
 
-*Figure 3: MRV Workflow Sequence - The monitoring, reporting, and verification process showing data flow from field measurements through verification to credit issuance.*
+* **`GET /projects/{projectId}/monitoring`**
+  Returns monitoring reports associated with a project. Filtering options MAY include reporting period, verification status, or verifier identity.
 
-Validation processes include temporal overlap checking, measurement unit verification, and methodology requirement compliance. The system ensures that monitoring reports cover complete reporting periods without gaps or overlaps with existing reports.
-
-**GET /projects/{projectId}/monitoring** retrieves monitoring reports for specific projects with filtering by reporting period, verification status, and verifier organization. The endpoint provides access to both current and historical monitoring data for trend analysis and audit purposes.
-
-**POST /projects/{projectId}/monitoring/{reportId}/verify** enables authorized verifiers to submit verification results for monitoring reports. The endpoint accepts verification outcomes, supporting documentation, and quantified carbon removal amounts.
-
-Verification workflow includes verifier authorization checking, supporting document validation, and outcome recording. Successful verification triggers credit issuance processes and updates project status records.
+* **`POST /projects/{projectId}/monitoring/{reportId}/verify`**
+  Submits a verification decision. Only authorized verifiers MAY call this endpoint. The request SHALL include verification status, documented outcome, and the amount of verified removal in metric tonnes CO₂e. Upon acceptance, the system SHALL update the MRV status and trigger credit issuance logic.
 
 #### 4.2.3 Credit Management
 
-Credit management endpoints handle the creation, transfer, and retirement of carbon removal units based on verified monitoring results. These endpoints integrate with blockchain systems for immutable record-keeping while providing user-friendly interfaces for credit operations.
+Credit endpoints manage the lifecycle of Carbon Removal Units (CRUs), from issuance through transfer and retirement. Each unit represents a verified quantity of net CO₂ removal.
 
-**GET /credits** provides access to carbon credit collections with filtering by project, vintage year, ownership status, and retirement status. The endpoint supports pagination and sorting for efficient data access and market analysis.
+* **`GET /credits`**
+  Returns a list of issued CRUs. Query parameters MAY include project ID, issuance year, owner address, and retirement status.
 
-**POST /credits/transfer** enables credit transfers between registry participants. The endpoint validates ownership, transfer authorization, and recipient eligibility before executing transfers and updating ownership records.
+* **`POST /credits/transfer`**
+  Transfers one or more CRUs to a new account. The request MUST include identifiers for the units to be transferred and the recipient’s address. The system SHALL verify ownership, recipient eligibility, and transaction validity before completing the operation.
 
-Transfer validation includes ownership verification, authorization checking, and recipient account validation. The system maintains complete transfer histories for audit purposes and regulatory compliance.
-
-**POST /credits/{creditId}/retire** permanently retires carbon credits for offsetting purposes. The endpoint accepts retirement reasons, beneficiary information, and supporting documentation while ensuring that retired credits cannot be transferred or traded.
-
-Retirement processes include ownership verification, retirement reason validation, and permanent status updates. Retired credits are marked as permanently unavailable for trading while maintaining traceability to underlying carbon removal activities.
+* **`POST /credits/{creditId}/retire`**
+  Permanently retires a CRU. The request SHALL include the retirement reason and MAY include beneficiary or use-case metadata. Retired units SHALL become non-transferable and remain publicly traceable in the registry.
 
 ### 4.3 Authentication and Authorization
 

@@ -10,31 +10,24 @@ package "GeoJSON Foundation" {
         +bbox: number[]
         +properties: object
     }
-    
+
     class Geometry {
         +type: string
         +coordinates: number[][]
     }
 }
 
-package "OGCR Core Models" {
+package "OGCR Canonical Models" {
     class ProjectDesignDocument {
-        +type: string = "Feature"
-        +id: string
-        +ogcr_version: string
         +profile: string = "pdd"
+        +ogcr_version: string
         +geometry: Geometry
         +bbox: number[]
         +properties: PDDProperties
         +ledger_reference: LedgerReference
         +links: Link[]
-        --
-        +validate(): ValidationResult
-        +generateHash(): string
-        +submit(): void
-        +approve(): void
     }
-    
+
     class PDDProperties {
         +name: string
         +description: string
@@ -46,29 +39,18 @@ package "OGCR Core Models" {
         +methodology: MethodologyReference
         +baseline_scenario: string
         +expected_annual_benefit: number
-        --
-        +updateStatus(status: ProjectStatus): void
-        +validateMethodology(): boolean
     }
-    
-    class MonitoringReportVerification {
-        +type: string = "Feature"
-        +id: string
-        +ogcr_version: string
+
+    class MonitoringReport {
         +profile: string = "mrv"
+        +ogcr_version: string
         +geometry: Geometry
         +bbox: number[]
         +properties: MRVProperties
         +ledger_reference: LedgerReference
         +links: Link[]
-        --
-        +validate(): ValidationResult
-        +generateHash(): string
-        +submit(): void
-        +verify(): void
-        +reject(): void
     }
-    
+
     class MRVProperties {
         +project_id: string
         +methodology_id: string
@@ -80,13 +62,8 @@ package "OGCR Core Models" {
         +verification_status: VerificationStatus
         +verification_date: string
         +verifier_info: VerifierInfo
-        +raw_data: RawDataReference[]
-        --
-        +validateTemporalBounds(): boolean
-        +calculateRemovals(): number
-        +checkOverlaps(): boolean
     }
-    
+
     class CarbonRemovalUnit {
         +token_id: string
         +project_id: string
@@ -94,99 +71,19 @@ package "OGCR Core Models" {
         +vintage_year: number
         +carbon_amount: number
         +retired: boolean
-        +retirement_reason: string
-        +retirement_timestamp: string
-        +retired_by: string
-        +serial_number: string
         +owner: string
-        --
-        +transfer(to: string): void
-        +retire(reason: string): void
-        +getMetadata(): CRUMetadata
-        +validateOwnership(): boolean
     }
 }
 
-package "Supporting Models" {
-    class LedgerReference {
-        +transaction_id: string
-        +block_number: number
-        +timestamp: string
-        +ledger_id: string
-        --
-        +verify(): boolean
-        +getBlockchainProof(): Proof
-    }
-    
-    class Link {
-        +rel: string
-        +href: string
-        +type: string
-        +title: string
-        --
-        +resolve(): Resource
-        +validate(): boolean
-    }
-    
-    class MethodologyReference {
-        +id: string
-        +version: string
-        +name: string
-        +type: string
-        --
-        +getSchema(): JSONSchema
-        +validateCompliance(data: object): boolean
-    }
-    
-    class MethodologyData {
-        +parameters: Map<string, any>
-        +measurement_devices: Device[]
-        +sampling_strategy: string
-        +data_quality_flags: Map<string, any>
-        +processing_notes: string
-        --
-        +validateParameters(): boolean
-        +calculateRemovals(): number
-    }
-    
-    class NetRemovalEstimate {
-        +value: number
-        +unit: string
-        +basis: string
-        --
-        +convert(unit: string): number
-        +validate(): boolean
-    }
-    
-    class Uncertainty {
-        +min: number
-        +max: number
-        +confidence_level: number
-        --
-        +getRange(): number
-        +isWithinBounds(value: number): boolean
-    }
-    
-    class VerifierInfo {
-        +organization: string
-        +accreditation_id: string
-        +reviewer_name: string
-        --
-        +validateCredentials(): boolean
-        +getAccreditation(): Accreditation
-    }
-    
-    class Actor {
-        +id: string
-        +name: string
-        +type: ActorType
-        +credentials: Credential[]
-        +public_key: string
-        --
-        +authenticate(): boolean
-        +authorize(action: string): boolean
-        +sign(data: string): Signature
-    }
+package "Supporting Models (Summarized)" {
+    class LedgerReference
+    class Link
+    class MethodologyReference
+    class MethodologyData
+    class NetRemovalEstimate
+    class Uncertainty
+    class VerifierInfo
+    class Actor
 }
 
 package "Enumerations" {
@@ -198,14 +95,14 @@ package "Enumerations" {
         REJECTED
         ARCHIVED
     }
-    
+
     enum VerificationStatus {
         UNVERIFIED
         PENDING
         VERIFIED
         REJECTED
     }
-    
+
     enum ActorType {
         DEVELOPER
         VERIFIER
@@ -218,50 +115,46 @@ package "Enumerations" {
 
 ' Relationships
 Feature <|-- ProjectDesignDocument
-Feature <|-- MonitoringReportVerification
+Feature <|-- MonitoringReport
 Geometry ||--o Feature
 
 ProjectDesignDocument ||--o PDDProperties
 ProjectDesignDocument ||--o LedgerReference
 ProjectDesignDocument ||--o Link
 
-MonitoringReportVerification ||--o MRVProperties
-MonitoringReportVerification ||--o LedgerReference
-MonitoringReportVerification ||--o Link
+MonitoringReport ||--o MRVProperties
+MonitoringReport ||--o LedgerReference
+MonitoringReport ||--o Link
 
 PDDProperties ||--o MethodologyReference
-PDDProperties ||--o ProjectStatus
+PDDProperties ||-- ProjectStatus
 
 MRVProperties ||--o MethodologyData
 MRVProperties ||--o NetRemovalEstimate
 MRVProperties ||--o Uncertainty
 MRVProperties ||--o VerifierInfo
-MRVProperties ||--o VerificationStatus
+MRVProperties ||-- VerificationStatus
 
 CarbonRemovalUnit ||--o Actor : owner
 
-ProjectDesignDocument ||--o MonitoringReportVerification : "1..*"
-MonitoringReportVerification ||--o CarbonRemovalUnit : "1..*"
+ProjectDesignDocument "1" o-- "*" MonitoringReport : generates
+MonitoringReport "1" o-- "*" CarbonRemovalUnit : attests
 
 Actor ||--o ActorType
 
 note top of ProjectDesignDocument
-  Extends GeoJSON Feature
-  Immutable after approval
-  Blockchain anchored
+  Declares project scope, geometry,
+  and methodology. Anchored on-chain.
 end note
 
-note top of MonitoringReportVerification
-  Links to parent PDD
-  Temporal validation required
-  Triggers credit issuance
+note top of MonitoringReport
+  Periodic monitoring results linked to PDD.
+  Subject to third-party verification.
 end note
 
 note top of CarbonRemovalUnit
-  ERC-721 compatible
-  Unique identification
-  Retirement tracking
+  Issuable unit of verified removal.
+  Transferable and retireable.
 end note
 
 @enduml
-

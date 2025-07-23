@@ -9,11 +9,11 @@
 
 This package contains the complete OGCR API Specification with all documentation, software components, validation tools, and supporting materials.
 
-### Core Documentation (115,334 words total)
-- **[docs/registry-specification.md](docs/registry-specification.md)** - Main OGCR API specification (38,263 words)
-- **[docs/api-documentation.md](docs/api-documentation.md)** - Complete RESTful API reference (17,386 words)
-- **[docs/smart-contract-requirements.md](docs/smart-contract-requirements.md)** - Detailed blockchain requirements (37,887 words)
-- **[docs/implementation-guidelines.md](docs/implementation-guidelines.md)** - Step-by-step implementation guide (21,798 words)
+### Core Documentation
+- **[docs/registry-specification.md](docs/registry-specification.md)** - Main OGCR API specification
+- **[docs/api-documentation.md](docs/api-documentation.md)** - Complete RESTful API reference
+- **[docs/smart-contract-requirements.md](docs/smart-contract-requirements.md)** - Detailed blockchain requirements
+- **[docs/implementation-guidelines.md](docs/implementation-guidelines.md)** - Step-by-step implementation guide
 
 ### Visual Documentation
 - **[diagrams/](diagrams/)** - UML diagrams with source files (.puml) and rendered images (.png)

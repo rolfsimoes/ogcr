@@ -1,201 +1,71 @@
 @startuml
 !theme plain
-title Carbon Registry System Architecture - Component Diagram
+title OGCR System Architecture - Reference Component View
 
 !define RECTANGLE class
 
 package "Application Layer" {
-    [Web Dashboard] as WebUI
-    [Mobile App] as MobileApp
-    [Third-party Integrations] as ThirdParty
-    [Developer Portal] as DevPortal
+    [Web Portal] <<application>>
+    [Mobile Interface] <<application>>
+    [External Integrations] <<application>>
 }
 
-package "API Gateway Layer" {
-    [API Gateway] as Gateway
-    [Authentication Service] as Auth
-    [Rate Limiter] as RateLimit
-    [Load Balancer] as LoadBalancer
+package "API Layer" {
+    [OGCR API Server] <<api>>
+    [Authentication and Access Control] <<api>>
+    [Document Validation Engine] <<api>>
+    [Lifecycle Manager] <<api>>
+    [External Service Connectors] <<api>>
 }
 
-package "Core Services Layer" {
-    [Registry Service] as Registry
-    [Project Management] as ProjectMgmt
-    [MRV Service] as MRVService
-    [Validation Service] as Validation
-    [Credit Service] as CreditService
-    [Notification Service] as Notification
+package "Ledger Layer" {
+    [Smart Contract Interface] <<ledger>>
+    [Blockchain Network] <<ledger>>
+    [Immutable Document Store] <<ledger>>
 }
 
-package "Integration Layer" {
-    [Blockchain Service] as BlockchainSvc
-    [External Data Sources] as ExtData
-    [Monitoring Systems] as MonitoringSys
-    [Verification Bodies] as VerificationSys
-    [Market Platforms] as MarketSys
-}
+' Application interactions
+[Web Portal] --> [OGCR API Server] : REST/HTTPS
+[Mobile Interface] --> [OGCR API Server] : REST/HTTPS
+[External Integrations] --> [OGCR API Server] : REST/HTTPS
 
-package "Data Layer" {
-    database "Registry Database" as RegDB
-    database "Document Store" as DocStore
-    database "Cache Layer" as Cache
-    database "Event Store" as EventStore
-}
+' API logic
+[OGCR API Server] --> [Authentication and Access Control]
+[OGCR API Server] --> [Document Validation Engine]
+[OGCR API Server] --> [Lifecycle Manager]
+[OGCR API Server] --> [External Service Connectors]
 
-package "Blockchain Layer" {
-    [Smart Contracts] as SmartContracts
-    [Blockchain Network] as Blockchain
-    [IPFS Storage] as IPFS
-}
+' Ledger integration
+[Lifecycle Manager] --> [Smart Contract Interface] : Anchor Hashes
+[Smart Contract Interface] --> [Blockchain Network] : Submit TX
+[Immutable Document Store] --> [Blockchain Network] : Optional Linkage
 
-package "External Systems" {
-    [Satellite Data] as SatData
-    [IoT Sensors] as IoTSensors
-    [Verification Orgs] as VerifOrgs
-    [Carbon Markets] as CarbonMarkets
-    [Regulatory Systems] as RegSystems
-}
+' External systems
+[External Service Connectors] --> [Verification Providers]
+[External Service Connectors] --> [Monitoring Data Sources]
+[External Service Connectors] --> [Carbon Market Platforms]
 
-' Application Layer Connections
-WebUI --> Gateway : HTTPS/REST
-MobileApp --> Gateway : HTTPS/REST
-ThirdParty --> Gateway : HTTPS/REST
-DevPortal --> Gateway : HTTPS/REST
-
-' API Gateway Layer Connections
-Gateway --> Auth : Authentication
-Gateway --> RateLimit : Rate Control
-LoadBalancer --> Gateway : Load Distribution
-
-' Core Services Connections
-Gateway --> Registry : API Calls
-Registry --> ProjectMgmt : Project Operations
-Registry --> MRVService : MRV Operations
-Registry --> CreditService : Credit Operations
-Registry --> Validation : Data Validation
-Registry --> Notification : Event Notifications
-
-ProjectMgmt --> Validation : Schema Validation
-MRVService --> Validation : MRV Validation
-CreditService --> BlockchainSvc : Token Operations
-
-' Integration Layer Connections
-Registry --> BlockchainSvc : Blockchain Operations
-BlockchainSvc --> SmartContracts : Contract Calls
-BlockchainSvc --> Blockchain : Network Access
-
-Registry --> ExtData : External Data
-ExtData --> SatData : Satellite Imagery
-ExtData --> IoTSensors : Sensor Data
-
-MRVService --> MonitoringSys : Monitoring Data
-MRVService --> VerificationSys : Verification
-CreditService --> MarketSys : Market Integration
-
-' Data Layer Connections
-Registry --> RegDB : Primary Data
-Registry --> DocStore : Document Storage
-Registry --> Cache : Performance Cache
-Registry --> EventStore : Event Logging
-
-ProjectMgmt --> RegDB : Project Data
-MRVService --> RegDB : MRV Data
-CreditService --> RegDB : Credit Data
-
-' Blockchain Layer Connections
-SmartContracts --> Blockchain : Deployed On
-DocStore --> IPFS : Distributed Storage
-
-' External Systems
-MonitoringSys --> SatData : Data Feed
-MonitoringSys --> IoTSensors : Sensor Feed
-VerificationSys --> VerifOrgs : Verification Services
-MarketSys --> CarbonMarkets : Trading Integration
-Registry --> RegSystems : Regulatory Reporting
-
-note top of Gateway
-  - Request routing
-  - Authentication
-  - Rate limiting
-  - API versioning
+note top of [OGCR API Server]
+  - Handles all registry operations
+  - Enforces lifecycle rules
+  - Performs canonical hashing
 end note
 
-note top of Registry
-  - Core business logic
-  - Workflow orchestration
-  - Data consistency
-  - Event coordination
+note top of [Smart Contract Interface]
+  - Verifies PDD/MRV hashes
+  - Issues/Retires CRUs
+  - Emits lifecycle events
 end note
 
-note top of BlockchainSvc
-  - Smart contract interaction
-  - Transaction management
-  - Event monitoring
-  - Hash generation
+note bottom of [Blockchain Network]
+  - Public or permissioned ledger
+  - Traceable, immutable events
 end note
 
-note top of SmartContracts
-  - Project registry
-  - MRV registry
-  - CRU tokens
-  - Access control
-end note
-
-note bottom of RegDB
-  - Project data
-  - MRV reports
-  - User accounts
-  - Audit trails
-end note
-
-' Component groupings with colors
 skinparam component {
     BackgroundColor<<application>> LightBlue
     BackgroundColor<<api>> LightGreen
-    BackgroundColor<<core>> LightYellow
-    BackgroundColor<<integration>> LightPink
-    BackgroundColor<<data>> LightGray
-    BackgroundColor<<blockchain>> LightCyan
-    BackgroundColor<<external>> White
+    BackgroundColor<<ledger>> LightYellow
 }
 
-WebUI <<application>>
-MobileApp <<application>>
-ThirdParty <<application>>
-DevPortal <<application>>
-
-Gateway <<api>>
-Auth <<api>>
-RateLimit <<api>>
-LoadBalancer <<api>>
-
-Registry <<core>>
-ProjectMgmt <<core>>
-MRVService <<core>>
-Validation <<core>>
-CreditService <<core>>
-Notification <<core>>
-
-BlockchainSvc <<integration>>
-ExtData <<integration>>
-MonitoringSys <<integration>>
-VerificationSys <<integration>>
-MarketSys <<integration>>
-
-RegDB <<data>>
-DocStore <<data>>
-Cache <<data>>
-EventStore <<data>>
-
-SmartContracts <<blockchain>>
-Blockchain <<blockchain>>
-IPFS <<blockchain>>
-
-SatData <<external>>
-IoTSensors <<external>>
-VerifOrgs <<external>>
-CarbonMarkets <<external>>
-RegSystems <<external>>
-
 @enduml
-

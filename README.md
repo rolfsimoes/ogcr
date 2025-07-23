@@ -6,7 +6,7 @@
 
 ## Overview
 
-The OGCR API Specification defines a professional and consistent registry framework for carbon removal projects. It provides minimal information requirements, intuitive API design, fully documented smart contract requirements, and extensible methodologies.
+The Open Geospatial Carbon Registry (OGCR) API Specification defines a normative framework for carbon removal certification systems, aligned with the principles of the Carbon Removal Certification Framework (CRCF). It establishes open standards for data models, lifecycle control, and verifiable state transitions, enabling transparent governance, interoperability, and auditability across distributed registry infrastructures.
 
 ## Repository Structure
 
@@ -86,10 +86,10 @@ python run_tests.py
 ## Documentation
 
 ### Core Specification
-- **[Registry Specification](docs/registry-specification.md)** - Main OGCR API specification (36,617 words)
-- **[API Documentation](docs/api-documentation.md)** - Complete RESTful API reference (17,167 words)
-- **[Smart Contract Requirements](docs/smart-contract-requirements.md)** - Detailed blockchain requirements (37,853 words)
-- **[Implementation Guidelines](docs/implementation-guidelines.md)** - Step-by-step implementation guide (21,755 words)
+- **[Registry Specification](docs/registry-specification.md)** - Main OGCR API specification
+- **[API Documentation](docs/api-documentation.md)** - Complete RESTful API reference
+- **[Smart Contract Requirements](docs/smart-contract-requirements.md)** - Detailed blockchain requirements
+- **[Implementation Guidelines](docs/implementation-guidelines.md)** - Step-by-step implementation guide
 
 ### Technical Assets
 - **[JSON Schemas](schemas/)** - Data validation schemas for PDD and MRV documents
