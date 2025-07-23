@@ -1,0 +1,128 @@
+@startuml
+!theme plain
+title Project Registration Workflow
+
+actor "Project Developer" as PD
+participant "API Gateway" as API
+participant "Registry Service" as RS
+participant "Validation Service" as VS
+participant "Blockchain Service" as BC
+participant "Smart Contract" as SC
+database "Registry Database" as DB
+
+== Project Submission ==
+PD -> API: POST /projects\n(PDD Document)
+activate API
+
+API -> RS: Validate Request
+activate RS
+
+RS -> VS: Schema Validation
+activate VS
+VS -> VS: Check GeoJSON Format
+VS -> VS: Validate Required Fields
+VS -> VS: Check Methodology Reference
+VS --> RS: Validation Result
+deactivate VS
+
+alt Validation Successful
+    RS -> DB: Store Draft PDD
+    activate DB
+    DB --> RS: Project ID Generated
+    deactivate DB
+    
+    RS -> BC: Generate Document Hash
+    activate BC
+    BC -> BC: Canonical Serialization
+    BC -> BC: SHA-256 Hash
+    BC --> RS: Document Hash
+    deactivate BC
+    
+    RS --> API: Project Created\n(Status: Draft)
+    API --> PD: 201 Created\n(Project ID, Status)
+else Validation Failed
+    RS --> API: Validation Errors
+    API --> PD: 400 Bad Request\n(Error Details)
+end
+deactivate RS
+deactivate API
+
+== Project Approval Workflow ==
+PD -> API: POST /projects/{id}/submit
+activate API
+
+API -> RS: Submit for Review
+activate RS
+
+RS -> DB: Update Status to "Submitted"
+activate DB
+DB --> RS: Status Updated
+deactivate DB
+
+RS -> BC: Register on Blockchain
+activate BC
+BC -> SC: registerProject(hash, projectId)
+activate SC
+SC -> SC: Validate Caller Permissions
+SC -> SC: Store Project Hash
+SC -> SC: Emit ProjectRegistered Event
+SC --> BC: Transaction Hash
+deactivate SC
+BC --> RS: Blockchain Reference
+deactivate BC
+
+RS -> DB: Store Blockchain Reference
+activate DB
+DB --> RS: Reference Stored
+deactivate DB
+
+RS --> API: Submission Successful
+API --> PD: 200 OK\n(Blockchain Reference)
+deactivate RS
+deactivate API
+
+== Validator Review ==
+actor "Validator" as V
+V -> API: GET /projects/{id}
+API -> RS: Retrieve Project
+RS -> DB: Get Project Data
+DB --> RS: Project Details
+RS --> API: Project Data
+API --> V: Project Information
+
+V -> API: POST /projects/{id}/approve
+activate API
+API -> RS: Approve Project
+activate RS
+
+RS -> BC: Approve on Blockchain
+activate BC
+BC -> SC: approveProject(projectId, validationHash)
+activate SC
+SC -> SC: Validate Approver Role
+SC -> SC: Update Project Status
+SC -> SC: Emit ProjectApproved Event
+SC --> BC: Transaction Hash
+deactivate SC
+BC --> RS: Approval Confirmed
+deactivate BC
+
+RS -> DB: Update Status to "Approved"
+activate DB
+DB --> RS: Status Updated
+deactivate DB
+
+RS --> API: Approval Successful
+API --> V: 200 OK\n(Approval Confirmed)
+deactivate RS
+deactivate API
+
+note right of SC
+  Smart contract ensures:
+  - Only authorized validators can approve
+  - Project exists and is in correct state
+  - Immutable approval record
+end note
+
+@enduml
+

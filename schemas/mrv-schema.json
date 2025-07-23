@@ -1,0 +1,357 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.ogcr.org/schemas/mrv-v0.1.0.json",
+  "title": "OGCR Monitoring, Reporting, and Verification (MRV) Document",
+  "description": "Schema for OGCR MRV documents based on GeoJSON Feature",
+  "type": "object",
+  "required": ["type", "id", "ogcr_version", "profile", "geometry", "properties"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "Feature",
+      "description": "Must be 'Feature' per GeoJSON specification"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Globally unique identifier for the MRV document"
+    },
+    "ogcr_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of the OGCR specification"
+    },
+    "profile": {
+      "type": "string",
+      "const": "mrv",
+      "description": "Must be 'mrv' to identify document type"
+    },
+    "geometry": {
+      "$ref": "#/$defs/geometry",
+      "description": "Geographic footprint of monitoring activities"
+    },
+    "bbox": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "Bounding box array [west, south, east, north]"
+    },
+    "properties": {
+      "$ref": "#/$defs/mrvProperties",
+      "description": "MRV-specific metadata and results"
+    },
+    "ledger_reference": {
+      "$ref": "#/$defs/ledgerReference",
+      "description": "Blockchain anchoring information"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/link"
+      },
+      "description": "Related resources and relationships"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "geometry": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]
+        },
+        "coordinates": {
+          "type": "array"
+        }
+      },
+      "additionalProperties": false
+    },
+    "mrvProperties": {
+      "type": "object",
+      "required": ["project_id", "methodology_id", "start_date", "end_date", "methodology_data", "net_removal_estimate"],
+      "properties": {
+        "project_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "References the associated PDD Feature ID"
+        },
+        "methodology_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Identifier of the applied methodology"
+        },
+        "start_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Start date of the monitoring period"
+        },
+        "end_date": {
+          "type": "string",
+          "format": "date",
+          "description": "End date of the monitoring period"
+        },
+        "methodology_data": {
+          "$ref": "#/$defs/methodologyData",
+          "description": "Method-specific measurements and inputs"
+        },
+        "net_removal_estimate": {
+          "$ref": "#/$defs/netRemovalEstimate",
+          "description": "Reported net benefit of the monitoring period"
+        },
+        "total_uncertainty": {
+          "$ref": "#/$defs/uncertainty",
+          "description": "Uncertainty characterization of the estimate"
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": ["unverified", "pending", "verified", "rejected"],
+          "description": "Current verification state"
+        },
+        "verification_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date when verification was completed"
+        },
+        "verifier_info": {
+          "$ref": "#/$defs/verifierInfo",
+          "description": "Information about the verifying entity"
+        },
+        "raw_data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/rawDataReference"
+          },
+          "description": "References to original measurement datasets"
+        }
+      },
+      "additionalProperties": false
+    },
+    "methodologyData": {
+      "type": "object",
+      "required": ["parameters"],
+      "properties": {
+        "parameters": {
+          "type": "object",
+          "description": "Key-value map of methodology-specific parameters",
+          "additionalProperties": true
+        },
+        "measurement_devices": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/device"
+          },
+          "description": "Instruments used to collect data"
+        },
+        "sampling_strategy": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Description of sampling approach"
+        },
+        "data_quality_flags": {
+          "type": "object",
+          "description": "Data reliability indicators",
+          "additionalProperties": true
+        },
+        "processing_notes": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Preprocessing and calculation notes"
+        }
+      },
+      "additionalProperties": false
+    },
+    "device": {
+      "type": "object",
+      "required": ["type", "model"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["lidar", "soil_sampler", "satellite", "drone", "weather_station", "biomass_scale", "other"],
+          "description": "Type of measurement device"
+        },
+        "model": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Device model identifier"
+        },
+        "calibration_date": {
+          "type": "string",
+          "format": "date",
+          "description": "Last calibration date"
+        },
+        "accuracy": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Device accuracy specification"
+        }
+      },
+      "additionalProperties": false
+    },
+    "netRemovalEstimate": {
+      "type": "object",
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Estimated net removal quantity"
+        },
+        "unit": {
+          "type": "string",
+          "enum": ["tCO2e", "kgCO2e", "tCO2", "kgCO2"],
+          "description": "Measurement unit"
+        },
+        "basis": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Calculation context or standard version"
+        }
+      },
+      "additionalProperties": false
+    },
+    "uncertainty": {
+      "type": "object",
+      "required": ["min", "max", "confidence_level"],
+      "properties": {
+        "min": {
+          "type": "number",
+          "description": "Lower bound of uncertainty interval"
+        },
+        "max": {
+          "type": "number",
+          "description": "Upper bound of uncertainty interval"
+        },
+        "confidence_level": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Confidence level (e.g., 0.95 for 95%)"
+        }
+      },
+      "additionalProperties": false
+    },
+    "verifierInfo": {
+      "type": "object",
+      "required": ["organization"],
+      "properties": {
+        "organization": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Name of the verifying organization"
+        },
+        "accreditation_id": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Accreditation identifier"
+        },
+        "reviewer_name": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Individual responsible for the review"
+        }
+      },
+      "additionalProperties": false
+    },
+    "rawDataReference": {
+      "type": "object",
+      "required": ["id", "type", "access_uri"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Unique identifier for the raw data source"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["lidar", "soil_sample", "satellite_imagery", "weather_data", "biomass_measurement", "other"],
+          "description": "Type of data"
+        },
+        "access_uri": {
+          "type": "string",
+          "format": "uri",
+          "description": "URI where the data can be retrieved"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 500,
+          "description": "Short description of the dataset"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ledgerReference": {
+      "type": "object",
+      "required": ["transaction_id", "block_number", "timestamp", "ledger_id"],
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Transaction hash or ID on the ledger"
+        },
+        "block_number": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Block number containing the transaction"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp"
+        },
+        "ledger_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the ledger network"
+        }
+      },
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "object",
+      "required": ["rel", "href"],
+      "properties": {
+        "rel": {
+          "type": "string",
+          "enum": [
+            "self",
+            "pdd",
+            "methodology",
+            "supporting-doc",
+            "data-source",
+            "verifier",
+            "predecessor",
+            "successor"
+          ],
+          "description": "Relationship type"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri",
+          "description": "Fully qualified URI of the linked resource"
+        },
+        "type": {
+          "type": "string",
+          "description": "MIME type of the target resource"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Human-readable description"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
+

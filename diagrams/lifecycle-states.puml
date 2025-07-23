@@ -1,0 +1,113 @@
+@startuml
+!theme plain
+title Lifecycle State Transitions
+
+state "Project Lifecycle" as ProjectStates {
+    [*] --> Draft : Create Project
+    Draft --> Submitted : Submit for Review
+    Submitted --> UnderReview : Validator Assigned
+    UnderReview --> Approved : Validation Successful
+    UnderReview --> Rejected : Validation Failed
+    Rejected --> Draft : Create New Version
+    Approved --> Archived : Project Completed
+    
+    Draft : - Editable by developer
+    Draft : - Schema validation only
+    Draft : - No blockchain record
+    
+    Submitted : - Immutable content
+    Submitted : - Awaiting validator
+    Submitted : - Blockchain hash recorded
+    
+    UnderReview : - Under validation
+    UnderReview : - Validator assigned
+    UnderReview : - May request revisions
+    
+    Approved : - Validation complete
+    Approved : - Can accept MRV reports
+    Approved : - Blockchain approval recorded
+    
+    Rejected : - Validation failed
+    Rejected : - Reason provided
+    Rejected : - Can create new version
+    
+    Archived : - Project completed
+    Archived : - Historical record
+    Archived : - No new activities
+}
+
+state "MRV Lifecycle" as MRVStates {
+    [*] --> MRVSubmitted : Submit MRV Report
+    MRVSubmitted --> PendingVerification : Initial Validation
+    PendingVerification --> Verified : Verification Successful
+    PendingVerification --> MRVRejected : Verification Failed
+    MRVRejected --> MRVSubmitted : Resubmit with Corrections
+    Verified --> MRVArchived : Superseded or Completed
+    
+    MRVSubmitted : - Temporal validation
+    MRVSubmitted : - Methodology compliance
+    MRVSubmitted : - Overlap checking
+    
+    PendingVerification : - Assigned to verifier
+    PendingVerification : - Field verification
+    PendingVerification : - Data analysis
+    
+    Verified : - Third-party verified
+    Verified : - Carbon amounts confirmed
+    Verified : - Triggers credit issuance
+    
+    MRVRejected : - Verification failed
+    MRVRejected : - Detailed feedback
+    MRVRejected : - Correction required
+    
+    MRVArchived : - Historical record
+    MRVArchived : - Credits already issued
+    MRVArchived : - Audit trail maintained
+}
+
+state "CRU Lifecycle" as CRUStates {
+    [*] --> Minted : Issue from Verified MRV
+    Minted --> Active : Available for Trading
+    Active --> Transferred : Ownership Change
+    Transferred --> Active : New Owner
+    Active --> Retired : Permanent Retirement
+    Retired --> [*] : End of Lifecycle
+    
+    Minted : - Created from verified MRV
+    Minted : - Unique token ID assigned
+    Minted : - Blockchain record created
+    
+    Active : - Available for trading
+    Active : - Ownership tracked
+    Active : - Market accessible
+    
+    Transferred : - Ownership changing
+    Transferred : - Blockchain transaction
+    Transferred : - Transfer validation
+    
+    Retired : - Permanently retired
+    Retired : - Cannot be traded
+    Retired : - Offset claim recorded
+}
+
+' Relationships between lifecycles
+ProjectStates --> MRVStates : Approved projects\ncan accept MRV
+MRVStates --> CRUStates : Verified MRV\ntriggers CRU minting
+
+note top of ProjectStates
+  Projects must be approved
+  before accepting MRV reports
+end note
+
+note top of MRVStates
+  MRV reports must be verified
+  before credits can be issued
+end note
+
+note top of CRUStates
+  Credits represent verified
+  carbon removal amounts
+end note
+
+@enduml
+

@@ -1,0 +1,63 @@
+{
+  "type": "Feature",
+  "id": "mrv_001",
+  "ogcr_version": "0.1.0",
+  "profile": "mrv",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+  },
+  "bbox": [0, 0, 1, 1],
+  "properties": {
+    "project_id": "project_001",
+    "methodology_id": "AR-ACM0003",
+    "start_date": "2024-01-01",
+    "end_date": "2024-12-31",
+    "methodology_data": {
+      "parameters": {
+        "tree_species": "Eucalyptus",
+        "planting_density": 1000,
+        "survival_rate": 0.85
+      },
+      "measurement_devices": [
+        {
+          "type": "other",
+          "model": "Forestry Suppliers DBH Tape",
+          "accuracy": "±1mm"
+        }
+      ],
+      "sampling_strategy": "Systematic sampling with 20m x 20m plots",
+      "data_quality_flags": {
+        "completeness": 0.95,
+        "accuracy": 0.98
+      },
+      "processing_notes": "Data processed using allometric equations for Eucalyptus species"
+    },
+    "net_removal_estimate": {
+      "value": 1250.75,
+      "unit": "tCO2e",
+      "basis": "Field measurements and allometric calculations"
+    },
+    "total_uncertainty": {
+      "min": 1125.68,
+      "max": 1375.83,
+      "confidence_level": 0.95
+    },
+    "verification_status": "verified",
+    "verification_date": "2024-12-07T15:30:00Z",
+    "verifier_info": {
+      "organization": "Carbon Verification International",
+      "accreditation_id": "CVI-2024-001",
+      "reviewer_name": "Dr. Jane Smith"
+    }
+  },
+  "links": [
+    {
+      "rel": "pdd",
+      "href": "https://api.ogcr.org/projects/project_001",
+      "type": "application/json",
+      "title": "Related Project"
+    }
+  ]
+}
+

@@ -1,0 +1,146 @@
+@startuml
+!theme plain
+title MRV (Monitoring, Reporting, Verification) Workflow
+
+actor "Project Developer" as PD
+actor "Verifier" as V
+participant "API Gateway" as API
+participant "Registry Service" as RS
+participant "MRV Service" as MRV
+participant "Blockchain Service" as BC
+participant "Smart Contract" as SC
+participant "Credit Service" as CS
+database "Registry Database" as DB
+
+== Monitoring Report Submission ==
+PD -> API: POST /projects/{id}/monitoring\n(MRV Document)
+activate API
+
+API -> RS: Validate MRV Submission
+activate RS
+
+RS -> MRV: Validate MRV Data
+activate MRV
+MRV -> MRV: Check Temporal Boundaries
+MRV -> MRV: Validate Measurement Data
+MRV -> MRV: Verify Methodology Compliance
+MRV -> DB: Check for Overlapping Periods
+activate DB
+DB --> MRV: No Overlaps Found
+deactivate DB
+MRV --> RS: Validation Successful
+deactivate MRV
+
+RS -> DB: Store MRV Report
+activate DB
+DB --> RS: MRV ID Generated
+deactivate DB
+
+RS -> BC: Generate MRV Hash
+activate BC
+BC -> BC: Canonical Serialization
+BC -> BC: SHA-256 Hash
+BC --> RS: Document Hash
+deactivate BC
+
+RS --> API: MRV Submitted\n(Status: Pending Verification)
+API --> PD: 201 Created\n(MRV ID, Status)
+deactivate RS
+deactivate API
+
+== Verification Process ==
+V -> API: GET /projects/{id}/monitoring/{mrvId}
+API -> RS: Retrieve MRV Report
+RS -> DB: Get MRV Data
+DB --> RS: MRV Details
+RS --> API: MRV Data
+API --> V: MRV Information
+
+V -> V: Conduct Verification\n(Field Visits, Data Analysis)
+
+alt Verification Successful
+    V -> API: POST /projects/{id}/monitoring/{mrvId}/verify\n(Verification Results)
+    activate API
+    
+    API -> RS: Process Verification
+    activate RS
+    
+    RS -> MRV: Validate Verification Data
+    activate MRV
+    MRV -> MRV: Check Verifier Credentials
+    MRV -> MRV: Validate Carbon Removal Amounts
+    MRV --> RS: Verification Valid
+    deactivate MRV
+    
+    RS -> BC: Record Verification on Blockchain
+    activate BC
+    BC -> SC: recordMRV(mrvHash, projectId, verifiedRemovals)
+    activate SC
+    SC -> SC: Validate Verifier Role
+    SC -> SC: Store MRV Hash
+    SC -> SC: Record Verified Amounts
+    SC -> SC: Emit MRVRecorded Event
+    SC --> BC: Transaction Hash
+    deactivate SC
+    BC --> RS: Verification Recorded
+    deactivate BC
+    
+    RS -> DB: Update MRV Status to "Verified"
+    activate DB
+    DB --> RS: Status Updated
+    deactivate DB
+    
+    RS --> API: Verification Successful
+    API --> V: 200 OK\n(Verification Confirmed)
+    deactivate RS
+    deactivate API
+
+else Verification Failed
+    V -> API: POST /projects/{id}/monitoring/{mrvId}/reject\n(Rejection Reasons)
+    API -> RS: Process Rejection
+    RS -> DB: Update Status to "Rejected"
+    DB --> RS: Status Updated
+    RS --> API: Rejection Recorded
+    API --> V: 200 OK\n(Rejection Confirmed)
+end
+
+== Credit Issuance ==
+note over RS: Automatic trigger after\nsuccessful verification
+
+RS -> CS: Initiate Credit Issuance
+activate CS
+
+CS -> BC: Issue Carbon Credits
+activate BC
+BC -> SC: mintCRUs(projectId, mrvHash, verifiedAmount)
+activate SC
+SC -> SC: Validate Minting Authority
+SC -> SC: Calculate Credit Amount\n(Apply Buffer if Required)
+SC -> SC: Mint CRU Tokens
+SC -> SC: Emit CRUMinted Event
+SC --> BC: Token IDs Generated
+deactivate SC
+BC --> CS: Credits Issued
+deactivate BC
+
+CS -> DB: Record Credit Issuance
+activate DB
+DB --> CS: Issuance Recorded
+deactivate DB
+
+CS --> RS: Credits Available
+deactivate CS
+
+RS -> API: Notify Project Developer
+API -> PD: Credits Issued Notification\n(Token IDs, Amounts)
+
+note right of SC
+  Smart contract ensures:
+  - Only verified MRV triggers issuance
+  - Buffer allocation for risk management
+  - Unique token IDs for each credit
+  - Immutable issuance record
+end note
+
+@enduml
+

@@ -1,0 +1,37 @@
+{
+  "type": "Feature",
+  "id": "project_001",
+  "ogcr_version": "0.1.0",
+  "profile": "pdd",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [[[0, 0], [1, 0], [1, 1], [0, 1], [0, 0]]]
+  },
+  "bbox": [0, 0, 1, 1],
+  "properties": {
+    "name": "Test Forest Project",
+    "description": "A test afforestation project for carbon removal",
+    "creation_date": "2024-12-07T10:00:00Z",
+    "last_updated": "2024-12-07T10:00:00Z",
+    "project_type": "afforestation",
+    "status": "draft",
+    "actor_id": "test-developer",
+    "methodology": {
+      "id": "AR-ACM0003",
+      "version": "2.1.0",
+      "name": "Afforestation and reforestation of lands except wetlands",
+      "type": "CDM"
+    },
+    "baseline_scenario": "The land would remain as degraded grassland without the project",
+    "expected_annual_benefit": 1500.5
+  },
+  "links": [
+    {
+      "rel": "methodology",
+      "href": "https://cdm.unfccc.int/methodologies/DB/AR-ACM0003",
+      "type": "text/html",
+      "title": "CDM Methodology AR-ACM0003"
+    }
+  ]
+}
+

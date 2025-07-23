@@ -1,0 +1,25 @@
+{
+  "type": "InvalidType",
+  "id": "project_001",
+  "ogcr_version": "invalid-version",
+  "profile": "pdd",
+  "geometry": {
+    "type": "InvalidGeometry",
+    "coordinates": "invalid"
+  },
+  "properties": {
+    "name": "",
+    "creation_date": "invalid-date",
+    "project_type": "invalid_type",
+    "status": "invalid_status",
+    "actor_id": "",
+    "expected_annual_benefit": -100
+  },
+  "links": [
+    {
+      "rel": "invalid_rel",
+      "href": "not-a-url"
+    }
+  ]
+}
+

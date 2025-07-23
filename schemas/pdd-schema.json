@@ -1,0 +1,257 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://api.ogcr.org/schemas/pdd-v0.1.0.json",
+  "title": "OGCR Project Design Document (PDD)",
+  "description": "Schema for OGCR Project Design Documents based on GeoJSON Feature",
+  "type": "object",
+  "required": ["type", "id", "ogcr_version", "profile", "geometry", "properties"],
+  "properties": {
+    "type": {
+      "type": "string",
+      "const": "Feature",
+      "description": "Must be 'Feature' per GeoJSON specification"
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]+$",
+      "minLength": 1,
+      "maxLength": 100,
+      "description": "Globally unique, immutable identifier for the PDD"
+    },
+    "ogcr_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "Version of the OGCR specification (semantic versioning)"
+    },
+    "profile": {
+      "type": "string",
+      "const": "pdd",
+      "description": "Must be 'pdd' to identify document type"
+    },
+    "geometry": {
+      "$ref": "#/$defs/geometry",
+      "description": "Geographic footprint of the project"
+    },
+    "bbox": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "minItems": 4,
+      "maxItems": 4,
+      "description": "Bounding box array [west, south, east, north]"
+    },
+    "properties": {
+      "$ref": "#/$defs/pddProperties",
+      "description": "Domain-specific metadata about the project"
+    },
+    "ledger_reference": {
+      "$ref": "#/$defs/ledgerReference",
+      "description": "Blockchain anchoring information (added post-submission)"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/link"
+      },
+      "description": "Related resources and relationships"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "geometry": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "enum": ["Point", "LineString", "Polygon", "MultiPoint", "MultiLineString", "MultiPolygon"]
+        },
+        "coordinates": {
+          "type": "array",
+          "description": "Coordinate arrays following GeoJSON specification"
+        }
+      },
+      "additionalProperties": false
+    },
+    "pddProperties": {
+      "type": "object",
+      "required": ["name", "creation_date", "project_type", "status", "actor_id"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 200,
+          "description": "Human-readable project name"
+        },
+        "description": {
+          "type": "string",
+          "maxLength": 2000,
+          "description": "Short summary of project goals and scope"
+        },
+        "creation_date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 date of initial submission"
+        },
+        "last_updated": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 timestamp of last update"
+        },
+        "project_type": {
+          "type": "string",
+          "enum": [
+            "afforestation",
+            "reforestation",
+            "soil_carbon",
+            "biochar",
+            "direct_air_capture",
+            "enhanced_weathering",
+            "blue_carbon",
+            "biomass_energy_ccs"
+          ],
+          "description": "Classification of removal activity"
+        },
+        "status": {
+          "type": "string",
+          "enum": ["draft", "submitted", "under_review", "approved", "rejected", "archived"],
+          "description": "Current PDD lifecycle state"
+        },
+        "actor_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Reference to authorized project proponent"
+        },
+        "methodology": {
+          "$ref": "#/$defs/methodologyReference",
+          "description": "Referenced methodology information"
+        },
+        "baseline_scenario": {
+          "type": "string",
+          "maxLength": 1000,
+          "description": "Description of baseline scenario"
+        },
+        "expected_annual_benefit": {
+          "type": "number",
+          "minimum": 0,
+          "description": "Expected annual carbon removal in tonnes CO2e"
+        },
+        "project_duration": {
+          "$ref": "#/$defs/projectDuration",
+          "description": "Project timeline information"
+        }
+      },
+      "additionalProperties": false
+    },
+    "methodologyReference": {
+      "type": "object",
+      "required": ["id", "version"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 100,
+          "description": "Unique methodology identifier"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+(\\.\\d+)?$",
+          "description": "Methodology version"
+        },
+        "name": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Human-readable methodology name"
+        },
+        "type": {
+          "type": "string",
+          "maxLength": 100,
+          "description": "Methodology category or type"
+        }
+      },
+      "additionalProperties": false
+    },
+    "projectDuration": {
+      "type": "object",
+      "required": ["start", "end"],
+      "properties": {
+        "start": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Project start date"
+        },
+        "end": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Project end date"
+        }
+      },
+      "additionalProperties": false
+    },
+    "ledgerReference": {
+      "type": "object",
+      "required": ["transaction_id", "block_number", "timestamp", "ledger_id"],
+      "properties": {
+        "transaction_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Transaction hash or ID on the ledger"
+        },
+        "block_number": {
+          "type": "integer",
+          "minimum": 0,
+          "description": "Block number containing the transaction"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO 8601 UTC timestamp of notarization"
+        },
+        "ledger_id": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Identifier of the ledger network"
+        }
+      },
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "object",
+      "required": ["rel", "href"],
+      "properties": {
+        "rel": {
+          "type": "string",
+          "enum": [
+            "self",
+            "related-mrv",
+            "methodology",
+            "monitor",
+            "predecessor",
+            "successor",
+            "supporting-doc",
+            "data-source"
+          ],
+          "description": "Relationship type"
+        },
+        "href": {
+          "type": "string",
+          "format": "uri",
+          "description": "Fully qualified URI of the linked resource"
+        },
+        "type": {
+          "type": "string",
+          "description": "MIME type of the target resource"
+        },
+        "title": {
+          "type": "string",
+          "maxLength": 200,
+          "description": "Human-readable description of the resource"
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
+

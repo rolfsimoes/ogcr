@@ -1,0 +1,102 @@
+@startuml
+!theme plain
+title Carbon Registry System Components
+
+package "User Interfaces" {
+    component [Web Dashboard]
+    component [Mobile App]
+    component [API Portal]
+}
+
+package "API Layer" {
+    component [API Gateway]
+    component [Authentication]
+    component [Rate Limiting]
+}
+
+package "Core Services" {
+    component [Registry Service]
+    component [Project Management]
+    component [MRV Service]
+    component [Credit Service]
+    component [Validation Service]
+}
+
+package "Integration Services" {
+    component [Blockchain Service]
+    component [External Data]
+    component [Notification Service]
+}
+
+package "Data Storage" {
+    database "Registry DB"
+    database "Document Store"
+    database "Event Store"
+}
+
+package "Blockchain" {
+    component [Smart Contracts]
+    component [Blockchain Network]
+}
+
+package "External Systems" {
+    component [Monitoring Systems]
+    component [Verification Bodies]
+    component [Carbon Markets]
+}
+
+' Connections
+[Web Dashboard] --> [API Gateway]
+[Mobile App] --> [API Gateway]
+[API Portal] --> [API Gateway]
+
+[API Gateway] --> [Authentication]
+[API Gateway] --> [Rate Limiting]
+[API Gateway] --> [Registry Service]
+
+[Registry Service] --> [Project Management]
+[Registry Service] --> [MRV Service]
+[Registry Service] --> [Credit Service]
+[Registry Service] --> [Validation Service]
+
+[Registry Service] --> [Blockchain Service]
+[Registry Service] --> [External Data]
+[Registry Service] --> [Notification Service]
+
+[Project Management] --> "Registry DB"
+[MRV Service] --> "Registry DB"
+[Credit Service] --> "Registry DB"
+
+[Registry Service] --> "Document Store"
+[Registry Service] --> "Event Store"
+
+[Blockchain Service] --> [Smart Contracts]
+[Smart Contracts] --> [Blockchain Network]
+
+[External Data] --> [Monitoring Systems]
+[MRV Service] --> [Verification Bodies]
+[Credit Service] --> [Carbon Markets]
+
+note right of [API Gateway]
+  - Request routing
+  - Authentication
+  - Rate limiting
+  - API versioning
+end note
+
+note right of [Registry Service]
+  - Core business logic
+  - Workflow orchestration
+  - Data consistency
+  - Event coordination
+end note
+
+note right of [Smart Contracts]
+  - Project registry
+  - MRV registry
+  - CRU tokens
+  - Access control
+end note
+
+@enduml
+
