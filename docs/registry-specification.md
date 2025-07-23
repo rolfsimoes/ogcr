@@ -175,104 +175,132 @@ Credit endpoints manage the lifecycle of Carbon Removal Units (CRUs), from issua
 
 * **`POST /credits/{creditId}/retire`**
   Permanently retires a CRU. The request SHALL include the retirement reason and MAY include beneficiary or use-case metadata. Retired units SHALL become non-transferable and remain publicly traceable in the registry.
-
 ### 4.3 Authentication and Authorization
 
-The API implements comprehensive authentication and authorization mechanisms that ensure secure access while supporting various integration patterns. The system supports both human users and automated systems with appropriate security controls for each use case.
+The OGCR API SHALL implement authentication and authorization mechanisms to control access to registry operations. Access control MUST be enforced at the interface, resource, and operation levels.
 
-**OAuth 2.0 Integration** provides secure authentication for web applications and mobile clients. The system supports standard OAuth flows including authorization code, client credentials, and refresh token patterns. Token scopes control access to specific API endpoints and operations.
+* **OAuth 2.0**
+  SHALL be supported for authenticating human users and web-based clients. Supported flows SHALL include authorization code and client credentials. Access tokens SHALL define scoped permissions, restricting access to specific endpoints and operations.
 
-**API Key Authentication** enables secure access for automated systems and server-to-server integrations. API keys are associated with specific organizations and include rate limiting and access scope controls.
+* **API Keys**
+  MAY be issued for server-to-server integrations or automated agents. Each API key SHALL be bound to an organization and associated with defined scopes and rate limits. Keys SHALL be revocable.
 
-**Role-Based Access Control** ensures that users can only perform operations appropriate to their roles within the registry system. Roles include project developers, verifiers, registry operators, and credit holders with specific permissions for each role type.
+* **Role-Based Access Control (RBAC)**
+  SHALL be used to restrict operations based on assigned roles. Core roles include `developer`, `verifier`, `operator`, and `holder`. Each role SHALL be associated with a defined set of permissions. The system SHALL validate role-based permissions on all sensitive operations.
 
-Permission validation occurs at multiple levels including endpoint access, resource ownership, and operation authorization. The system maintains audit logs of all access attempts and permission decisions for security monitoring and compliance purposes.
+All access attempts and authorization decisions SHALL be logged. Audit logs SHALL record timestamps, actor identity, resource identifiers, and outcome status. Logs MUST be available for inspection by authorized administrators.
 
 ### 4.4 Data Validation and Quality Assurance
 
-The API implements comprehensive data validation mechanisms that ensure data quality while providing clear feedback for correction and improvement. Validation occurs at multiple levels from basic schema compliance to complex business rule enforcement.
+All submitted documents and requests to the API SHALL be subject to multi-level validation to ensure schema compliance, business rule conformity, and data quality.
 
-**Schema Validation** ensures that all submitted data conforms to defined JSON schemas with appropriate field types, required fields, and format constraints. Schema validation provides immediate feedback on structural issues with specific field references and correction guidance.
+* **Schema Validation**
+  SHALL be applied to all resource submissions. Each core document type (PDD, MRV) SHALL be validated against its corresponding JSON Schema:
 
-The specification defines comprehensive JSON schemas for all core data types:
-- **[PDD Schema](../schemas/pdd-schema.json)** - Validates Project Design Document structure and content
-- **[MRV Schema](../schemas/mrv-schema.json)** - Validates Monitoring, Reporting, and Verification document structure and content
+  * [PDD Schema](../schemas/pdd-schema.json)
+  * [MRV Schema](../schemas/mrv-schema.json)
 
-These schemas provide machine-readable validation rules that ensure data consistency across all registry implementations.
+  Validation SHALL include type checking, required fields, format constraints, and enumerated values. Error responses MUST reference the failing field and SHALL include human-readable correction guidance.
 
-**Business Rule Validation** enforces complex constraints such as temporal consistency, spatial boundaries, and methodology compliance. Business rules are configurable to accommodate different regulatory requirements and methodology specifications.
+* **Business Rule Validation**
+  SHALL enforce constraints beyond schema structure, including:
 
-**Data Quality Scoring** provides quantitative assessments of data completeness, accuracy, and consistency. Quality scores help users identify areas for improvement while enabling registry operators to prioritize review and verification activities.
+  * Non-overlapping monitoring periods per project
+  * Valid methodology reference and version
+  * Non-intersecting project geometries
+  * Role-based operation limits
 
-Quality assurance processes include automated checks, manual review workflows, and continuous monitoring of data quality trends. The system provides dashboards and reports that enable stakeholders to track data quality improvements over time.
+  These rules MAY be adapted based on jurisdictional or methodological requirements and SHALL be documented.
+
+* **Data Quality Assessment**
+  MAY be applied to submitted documents. Quality indicators MAY include completeness, internal consistency, and adherence to reporting best practices. The registry MAY assign a non-normative quality score to each submission for reporting or review prioritization purposes.
+
+Registries implementing this specification SHOULD support validation dashboards and issue tracking interfaces to enable continuous improvement in submission accuracy and consistency.
 
 ### 4.5 Performance and Scalability
 
-The API design incorporates performance optimization and scalability features that ensure responsive operation under varying load conditions. These features enable the system to handle growing numbers of projects, monitoring reports, and credit transactions.
+The OGCR API SHALL support scalable operation under variable load conditions. Implementations SHALL include mechanisms for performance optimization, fault tolerance, and efficient access to large datasets.
 
-**Caching Strategies** reduce response times and server load by caching frequently accessed data at multiple levels. Cache invalidation ensures data consistency while maximizing performance benefits.
+* **Caching**
+  Responses to frequently accessed resources MAY be cached at the server or proxy level. Cache invalidation mechanisms SHALL ensure consistency with underlying registry state. Time-to-live (TTL) policies and conditional request headers (e.g., `ETag`) MAY be used.
 
-**Pagination and Filtering** enable efficient access to large datasets by limiting response sizes and providing targeted data access. Pagination supports both offset-based and cursor-based patterns for different use cases.
+* **Pagination and Filtering**
+  Collection endpoints SHALL support pagination. Offset-based pagination SHALL be supported by default; cursor-based pagination MAY be provided for large or real-time datasets. Query parameters for filtering and sorting by attributes (e.g., status, date, geography) SHALL be implemented to limit payload size and improve response performance.
 
-**Asynchronous Processing** handles time-intensive operations such as document validation, verification workflows, and blockchain transactions without blocking API responses. Status endpoints provide progress updates for long-running operations.
+* **Asynchronous Operations**
+  Time-intensive processes such as schema validation, verification submission, and ledger anchoring MAY be handled asynchronously. The initiating endpoint SHALL return a task identifier, and a separate status endpoint SHALL provide progress updates and final outcomes.
 
-**Rate Limiting** protects system resources while ensuring fair access for all users. Rate limits are configurable by user type and endpoint category with clear error messages when limits are exceeded.
+* **Rate Limiting**
+  The API SHALL enforce rate limits to manage resource usage. Limits MAY vary by role, client type, or endpoint category. When a rate limit is exceeded, the API SHALL return an HTTP 429 response with a `Retry-After` header.
+
+Implementations SHOULD monitor system performance and provide administrative access to runtime metrics for operational oversight.
 
 ## 5. Smart Contract Requirements
 
 ### 5.1 Smart Contract Architecture
 
-The Carbon Registry Specification defines smart contract requirements that provide immutable record-keeping, transparent governance, and trustless verification capabilities. The smart contract architecture separates concerns between different contract types while maintaining interoperability and upgradeability.
+The OGCR Specification defines requirements for smart contracts that SHALL provide immutable state anchoring, verifiable state transitions, and support for decentralized governance. The architecture SHALL follow modular design principles and MUST emit event logs for all critical operations.
 
-**Modular Design** organizes smart contract functionality into specialized contracts that handle specific aspects of registry operations. This approach enables independent upgrades, testing, and optimization while maintaining system coherence.
+* **Modular Contract Design**
+  Smart contract logic SHALL be separated into components with defined responsibilities. Each contract SHALL handle one core function: project registration, MRV anchoring, unit issuance, or access control. Contracts MAY be independently deployed and upgraded.
 
-**Proxy Patterns** enable contract upgrades while preserving state and maintaining user trust. Upgrade mechanisms include time delays, multi-signature requirements, and governance voting to ensure that changes are legitimate and beneficial.
+* **Upgradeability**
+  Implementations MAY use proxy patterns to enable logic upgrades. Upgrade mechanisms SHOULD include governance constraints such as delay periods, multi-signature authorization, or stakeholder voting. State variables MUST remain consistent across upgrades.
 
-**Event-Driven Architecture** ensures that all significant contract actions emit events that can be monitored by off-chain systems. Events provide the basis for synchronization between blockchain and registry systems while enabling real-time monitoring and alerting.
+* **Event Emission**
+  All state-changing actions (e.g., registration, approval, issuance) MUST emit events. Events SHALL include sufficient metadata to support off-chain indexing, registry reconciliation, and external monitoring.
 
 ### 5.2 Core Contract Types
 
-The specification defines four primary smart contract types that handle different aspects of registry operations. Each contract type has specific responsibilities and interfaces that enable integration while maintaining security and efficiency.
+A conforming implementation SHALL deploy the following smart contract types. Each contract SHALL expose interfaces required for integration with the API and registry backend. Access to state-changing functions MUST be restricted to authorized roles.
 
 #### 5.2.1 Project Registry Contract
 
-The Project Registry Contract manages the registration and approval status of carbon removal projects. This contract provides immutable records of project submissions, approval decisions, and status changes while enabling authorized updates by registry operators.
+The Project Registry Contract SHALL store immutable references to submitted project design documents and track project lifecycle status.
 
-**Project Registration** functions accept project document hashes and metadata from authorized submitters. Registration creates permanent records that link project identifiers to document hashes and submission timestamps.
+* **Registration**
+  The contract SHALL accept project document hashes, unique identifiers, and metadata submitted by authorized actors. On success, the contract SHALL emit a `PDDRegistered` event.
 
-**Approval Management** functions enable authorized validators to approve or reject submitted projects. Approval decisions are recorded with validator identities, timestamps, and supporting documentation references.
+* **Approval and Rejection**
+  Validators MAY update project status by invoking approval or rejection functions. Each decision MUST be logged with a timestamp and validator address. Rejections MAY include justification metadata.
 
-**Status Tracking** functions maintain current project status and enable authorized status changes. Status transitions are logged with complete audit trails including timestamps, responsible parties, and change reasons.
+* **Status Transitions**
+  Projects MAY transition through states including `draft`, `submitted`, `validated`, `rejected`, or `archived`. Each transition MUST be recorded via event emission.
 
 ![Project Lifecycle States](../diagrams/lifecycle-states.png)
+*Figure 5: Valid state transitions for registered projects.*
 
-*Figure 5: Project Lifecycle States - State diagram showing the possible states and transitions for carbon removal projects throughout their lifecycle.*
-
-Access control mechanisms ensure that only authorized parties can perform specific operations while maintaining transparency through public read access to project information.
+Read access to project metadata and status MUST be publicly available. Write operations MUST be restricted to accounts with appropriate roles (e.g., `developer`, `validator`, `operator`).
 
 #### 5.2.2 MRV Registry Contract
 
-The MRV Registry Contract manages monitoring, reporting, and verification records for approved projects. This contract links monitoring reports to projects while tracking verification status and outcomes.
+The MRV Registry Contract SHALL manage hashes and metadata for monitoring, reporting, and verification (MRV) records. Each MRV record MUST reference an approved project and a specific reporting period.
 
-**Report Submission** functions accept monitoring report hashes and metadata from authorized submitters. Submissions are validated against project approval status and temporal requirements before creating permanent records.
+* **Submission**
+  Authorized actors MAY submit monitoring report hashes along with associated metadata. The contract SHALL validate that the referenced project is approved and that the reporting period does not overlap with existing entries.
 
-**Verification Management** functions enable authorized verifiers to record verification outcomes and quantified carbon removal amounts. Verification records include verifier identities, verification dates, and outcome determinations.
+* **Verification**
+  Authorized verifiers MAY record verification outcomes, including net removal quantities and dates. The contract MUST emit a `MRVVerified` event containing the MRV ID, verifier address, and quantified amount.
 
-**Data Integrity** functions provide cryptographic verification of monitoring report contents through hash comparison. These functions enable independent verification of report authenticity and completeness.
+* **Hash Integrity**
+  The contract SHALL store cryptographic hashes of each MRV report. Off-chain systems MAY verify report integrity by comparing content hashes to on-chain references.
 
-Temporal validation ensures that monitoring reports cover appropriate time periods without overlaps or gaps while maintaining consistency with project timelines and methodology requirements.
+Temporal constraints MUST ensure that monitoring reports do not overlap and that all periods align with project timelines and methodology requirements.
 
 #### 5.2.3 Carbon Credit Token Contract
 
-The Carbon Credit Token Contract implements carbon removal units as non-fungible tokens that provide unique identification, ownership tracking, and transfer capabilities. This contract follows ERC-721 standards while adding carbon-specific functionality.
+The Carbon Credit Token Contract SHALL represent Carbon Removal Units (CRUs) as non-fungible tokens (NFTs) conforming to the ERC-721 standard \[3]. Each token MUST represent a verified quantity of carbon removal and MUST be traceable to its source MRV and project.
 
-**Token Minting** functions create new carbon credit tokens based on verified monitoring results. Minting is restricted to authorized registry operators and includes metadata linking tokens to underlying projects and monitoring periods.
+* **Minting**
+  Only authorized actors MAY mint tokens. Each mint operation MUST reference a verified MRV, and the resulting token MUST include metadata fields for project ID, MRV ID, vintage year, and amount. A `CRUMinted` event MUST be emitted.
 
-**Transfer Management** functions handle token transfers between registry participants while maintaining ownership records and transfer histories. Transfer restrictions can be implemented for specific token types or regulatory requirements.
+* **Transfer**
+  Token holders MAY transfer tokens subject to registry rules. All transfers MUST be logged with timestamps and involved addresses. Optional restrictions MAY be applied based on regulatory constraints or credit type.
 
-**Retirement Functions** enable permanent retirement of carbon credits for offsetting purposes. Retired tokens cannot be transferred or traded while maintaining traceability to underlying carbon removal activities.
+* **Retirement**
+  Tokens MAY be retired to finalize a carbon offset claim. Retired tokens MUST be non-transferable and MUST retain all metadata for auditability. A `CRURetired` event MUST be emitted with a reason code.
 
-Token metadata includes project identifiers, vintage years, verification details, and retirement status to provide complete traceability and transparency.
+Each token’s metadata structure SHALL include project identifiers, reporting period, carbon amount, issuance and retirement status, and any relevant compliance attributes.
 
 #### 5.2.4 Access Control Contract
 
