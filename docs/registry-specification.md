@@ -8,7 +8,7 @@
 
 ## Abstract
 
-The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON \[1], JSON Schema \[2], and ERC-721 \[3] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 \[4].
+The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON [1], JSON Schema [2], and ERC-721 [3] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 [4].
 
 ## 1. Introduction
 
@@ -30,7 +30,7 @@ The specification is governed by five principles:
 
 ### 1.3 Regulatory Context
 
-This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 \[4]. It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
+This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 [4]. It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
 
 ## 2. System Architecture
 
@@ -73,7 +73,7 @@ The specification defines standard integration patterns for registry federation,
 ![Core Data Models](../diagrams/core-data-models-class.png)
 *Figure 4: UML class diagram of canonical document types and their relationships.*
 
-This specification defines three canonical document types used to represent project declarations, monitoring results, and verified removal units. All core documents SHALL be serialized as GeoJSON Features \[1] and SHALL follow schema constraints defined in the corresponding conformance classes.
+This specification defines three canonical document types used to represent project declarations, monitoring results, and verified removal units. All core documents SHALL be serialized as GeoJSON Features [1] and SHALL follow schema constraints defined in the corresponding conformance classes.
 
 ### 3.1 Project Design Document (PDD)
 
@@ -98,14 +98,6 @@ Carbon Removal Units (CRUs) represent attested net removals of CO₂ equivalent.
 CRUs SHALL be uniquely identifiable and SHALL include metadata that binds them to the underlying monitoring and verification context. Implementations MAY use token-based representations such as ERC-721 for lifecycle tracking, transferability, and retirement.
 
 CRUs MAY be issued in fractional quantities where permitted by the registry. Each unit SHALL retain a one-to-one mapping to its provenance data. Retired CRUs SHALL be excluded from transfer and SHALL be cryptographically flagged as withdrawn from circulation.
-
-## References
-
-[1] RFC 7946: The GeoJSON Format. https://tools.ietf.org/html/rfc7946  
-[2] JSON Schema Specification. https://json-schema.org/  
-[3] ERC-721: Non-Fungible Token Standard. https://eips.ethereum.org/EIPS/eip-721  
-[4] Regulation (EU) 2024/3012 establishing a Union certification framework for permanent carbon removals. https://eur-lex.europa.eu/eli/reg/2024/3012/oj
-
 
 
 ## 4. API Design
@@ -133,18 +125,22 @@ All endpoints SHALL implement authenticated access, schema validation, and consi
 Project endpoints manage the creation, retrieval, update, and status tracking of carbon removal projects. A project is represented by a Project Design Document (PDD) and is associated with a unique identifier.
 
 * **`POST /projects`**
+
   Submits a new project to the registry. The request body SHALL conform to the canonical PDD schema. The system SHALL validate document structure, methodology reference, and spatial geometry. Upon acceptance, a unique project identifier SHALL be issued and the PDD SHALL enter the `submitted` state.
 
 ![Project Registration Workflow](../diagrams/project-registration-sequence.png)
 *Figure 2: Project registration lifecycle, from submission to validation and anchoring.*
 
 * **`GET /projects/{projectId}`**
+
   Retrieves the full project record, including document content, status, version history, and links to associated monitoring reports.
 
 * **`PUT /projects/{projectId}`**
+
   Updates a project document prior to validation. After validation, modifications SHALL be restricted to permitted metadata fields (e.g., contact information). All changes SHALL be versioned and timestamped.
 
 * **`GET /projects`**
+
   Returns a paginated list of project entries. Query parameters MAY include status, methodology, actor, bounding box, and creation or approval date ranges.
 
 #### 4.2.2 Monitoring and Verification
@@ -152,15 +148,18 @@ Project endpoints manage the creation, retrieval, update, and status tracking of
 Monitoring endpoints handle submission and retrieval of monitoring reports (MRVs). Verification endpoints manage the attestation process by authorized verifiers.
 
 * **`POST /projects/{projectId}/monitoring`**
+
   Submits a monitoring report for the specified project. The report SHALL conform to the MRV schema and SHALL not overlap temporally with any existing MRV for the same project. The system SHALL validate schema conformance, reporting period boundaries, and methodology consistency.
 
 ![MRV Workflow](../diagrams/mrv-workflow-sequence.png)
 *Figure 3: MRV submission, verification, and issuance process.*
 
 * **`GET /projects/{projectId}/monitoring`**
+
   Returns monitoring reports associated with a project. Filtering options MAY include reporting period, verification status, or verifier identity.
 
 * **`POST /projects/{projectId}/monitoring/{reportId}/verify`**
+
   Submits a verification decision. Only authorized verifiers MAY call this endpoint. The request SHALL include verification status, documented outcome, and the amount of verified removal in metric tonnes CO₂e. Upon acceptance, the system SHALL update the MRV status and trigger credit issuance logic.
 
 #### 4.2.3 Credit Management
@@ -168,24 +167,31 @@ Monitoring endpoints handle submission and retrieval of monitoring reports (MRVs
 Credit endpoints manage the lifecycle of Carbon Removal Units (CRUs), from issuance through transfer and retirement. Each unit represents a verified quantity of net CO₂ removal.
 
 * **`GET /credits`**
+
   Returns a list of issued CRUs. Query parameters MAY include project ID, issuance year, owner address, and retirement status.
 
 * **`POST /credits/transfer`**
+
   Transfers one or more CRUs to a new account. The request MUST include identifiers for the units to be transferred and the recipient’s address. The system SHALL verify ownership, recipient eligibility, and transaction validity before completing the operation.
 
 * **`POST /credits/{creditId}/retire`**
+
   Permanently retires a CRU. The request SHALL include the retirement reason and MAY include beneficiary or use-case metadata. Retired units SHALL become non-transferable and remain publicly traceable in the registry.
+
 ### 4.3 Authentication and Authorization
 
 The OGCR API SHALL implement authentication and authorization mechanisms to control access to registry operations. Access control MUST be enforced at the interface, resource, and operation levels.
 
 * **OAuth 2.0**
+
   SHALL be supported for authenticating human users and web-based clients. Supported flows SHALL include authorization code and client credentials. Access tokens SHALL define scoped permissions, restricting access to specific endpoints and operations.
 
 * **API Keys**
+
   MAY be issued for server-to-server integrations or automated agents. Each API key SHALL be bound to an organization and associated with defined scopes and rate limits. Keys SHALL be revocable.
 
 * **Role-Based Access Control (RBAC)**
+
   SHALL be used to restrict operations based on assigned roles. Core roles include `developer`, `verifier`, `operator`, and `holder`. Each role SHALL be associated with a defined set of permissions. The system SHALL validate role-based permissions on all sensitive operations.
 
 All access attempts and authorization decisions SHALL be logged. Audit logs SHALL record timestamps, actor identity, resource identifiers, and outcome status. Logs MUST be available for inspection by authorized administrators.
@@ -194,46 +200,51 @@ All access attempts and authorization decisions SHALL be logged. Audit logs SHAL
 
 All submitted documents and requests to the API SHALL be subject to multi-level validation to ensure schema compliance, business rule conformity, and data quality.
 
-* **Schema Validation**
-  SHALL be applied to all resource submissions. Each core document type (PDD, MRV) SHALL be validated against its corresponding JSON Schema:
+Registries implementing this specification SHOULD support validation dashboards and issue tracking interfaces to enable continuous improvement in submission accuracy and consistency.
 
-  * [PDD Schema](../schemas/pdd-schema.json)
-  * [MRV Schema](../schemas/mrv-schema.json)
+#### 4.4.1 Schema Validation
 
-  Validation SHALL include type checking, required fields, format constraints, and enumerated values. Error responses MUST reference the failing field and SHALL include human-readable correction guidance.
+Schema Validation SHALL be applied to all resource submissions. Each core document type (PDD, MRV) SHALL be validated against its corresponding JSON Schema ([PDD Schema](../schemas/pdd-schema.json) or [MRV Schema](../schemas/mrv-schema.json))
 
-* **Business Rule Validation**
-  SHALL enforce constraints beyond schema structure, including:
+Validation SHALL include type checking, required fields, format constraints, and enumerated values. Error responses MUST reference the failing field and SHALL include human-readable correction guidance.
+
+#### 4.4.2 Business Rule Validation
+
+Business Rule Validation SHALL enforce constraints beyond schema structure, including:
 
   * Non-overlapping monitoring periods per project
   * Valid methodology reference and version
   * Non-intersecting project geometries
   * Role-based operation limits
 
-  These rules MAY be adapted based on jurisdictional or methodological requirements and SHALL be documented.
+These rules MAY be adapted based on jurisdictional or methodological requirements and SHALL be documented.
 
-* **Data Quality Assessment**
-  MAY be applied to submitted documents. Quality indicators MAY include completeness, internal consistency, and adherence to reporting best practices. The registry MAY assign a non-normative quality score to each submission for reporting or review prioritization purposes.
+#### 4.4.3 Data Quality Assessment
 
-Registries implementing this specification SHOULD support validation dashboards and issue tracking interfaces to enable continuous improvement in submission accuracy and consistency.
+MAY be applied to submitted documents. Quality indicators MAY include completeness, internal consistency, and adherence to reporting best practices. The registry MAY assign a non-normative quality score to each submission for reporting or review prioritization purposes.
 
 ### 4.5 Performance and Scalability
 
 The OGCR API SHALL support scalable operation under variable load conditions. Implementations SHALL include mechanisms for performance optimization, fault tolerance, and efficient access to large datasets.
 
-* **Caching**
-  Responses to frequently accessed resources MAY be cached at the server or proxy level. Cache invalidation mechanisms SHALL ensure consistency with underlying registry state. Time-to-live (TTL) policies and conditional request headers (e.g., `ETag`) MAY be used.
-
-* **Pagination and Filtering**
-  Collection endpoints SHALL support pagination. Offset-based pagination SHALL be supported by default; cursor-based pagination MAY be provided for large or real-time datasets. Query parameters for filtering and sorting by attributes (e.g., status, date, geography) SHALL be implemented to limit payload size and improve response performance.
-
-* **Asynchronous Operations**
-  Time-intensive processes such as schema validation, verification submission, and ledger anchoring MAY be handled asynchronously. The initiating endpoint SHALL return a task identifier, and a separate status endpoint SHALL provide progress updates and final outcomes.
-
-* **Rate Limiting**
-  The API SHALL enforce rate limits to manage resource usage. Limits MAY vary by role, client type, or endpoint category. When a rate limit is exceeded, the API SHALL return an HTTP 429 response with a `Retry-After` header.
-
 Implementations SHOULD monitor system performance and provide administrative access to runtime metrics for operational oversight.
+
+#### 4.5.1 Caching
+
+Responses to frequently accessed resources MAY be cached at the server or proxy level. Cache invalidation mechanisms SHALL ensure consistency with underlying registry state. Time-to-live (TTL) policies and conditional request headers (e.g., `ETag`) MAY be used.
+
+#### 4.5.2 Pagination and Filtering
+
+Collection endpoints SHALL support pagination. Offset-based pagination SHALL be supported by default; cursor-based pagination MAY be provided for large or real-time datasets. Query parameters for filtering and sorting by attributes (e.g., status, date, geography) SHALL be implemented to limit payload size and improve response performance.
+
+#### 4.5.3 Asynchronous Operations
+
+Time-intensive processes such as schema validation, verification submission, and ledger anchoring MAY be handled asynchronously. The initiating endpoint SHALL return a task identifier, and a separate status endpoint SHALL provide progress updates and final outcomes.
+
+#### 4.5.4 Rate Limiting
+
+The API SHALL enforce rate limits to manage resource usage. Limits MAY vary by role, client type, or endpoint category. When a rate limit is exceeded, the API SHALL return an HTTP 429 response with a `Retry-After` header.
+
 
 ## 5. Smart Contract Requirements
 
@@ -241,14 +252,17 @@ Implementations SHOULD monitor system performance and provide administrative acc
 
 The OGCR Specification defines requirements for smart contracts that SHALL provide immutable state anchoring, verifiable state transitions, and support for decentralized governance. The architecture SHALL follow modular design principles and MUST emit event logs for all critical operations.
 
-* **Modular Contract Design**
-  Smart contract logic SHALL be separated into components with defined responsibilities. Each contract SHALL handle one core function: project registration, MRV anchoring, unit issuance, or access control. Contracts MAY be independently deployed and upgraded.
+#### 5.1.1 Modular Contract Design
 
-* **Upgradeability**
-  Implementations MAY use proxy patterns to enable logic upgrades. Upgrade mechanisms SHOULD include governance constraints such as delay periods, multi-signature authorization, or stakeholder voting. State variables MUST remain consistent across upgrades.
+Smart contract logic SHALL be separated into components with defined responsibilities. Each contract SHALL handle one core function: project registration, MRV anchoring, unit issuance, or access control. Contracts MAY be independently deployed and upgraded.
 
-* **Event Emission**
-  All state-changing actions (e.g., registration, approval, issuance) MUST emit events. Events SHALL include sufficient metadata to support off-chain indexing, registry reconciliation, and external monitoring.
+#### 5.1.2 Upgradeability
+
+Implementations MAY use proxy patterns to enable logic upgrades. Upgrade mechanisms SHOULD include governance constraints such as delay periods, multi-signature authorization, or stakeholder voting. State variables MUST remain consistent across upgrades.
+
+#### 5.1.3 Event Emission
+
+All state-changing actions (e.g., registration, approval, issuance) MUST emit events. Events SHALL include sufficient metadata to support off-chain indexing, registry reconciliation, and external monitoring.
 
 ### 5.2 Core Contract Types
 
@@ -259,12 +273,15 @@ A conforming implementation SHALL deploy the following smart contract types. Eac
 The Project Registry Contract SHALL store immutable references to submitted project design documents and track project lifecycle status.
 
 * **Registration**
+
   The contract SHALL accept project document hashes, unique identifiers, and metadata submitted by authorized actors. On success, the contract SHALL emit a `PDDRegistered` event.
 
 * **Approval and Rejection**
+
   Validators MAY update project status by invoking approval or rejection functions. Each decision MUST be logged with a timestamp and validator address. Rejections MAY include justification metadata.
 
 * **Status Transitions**
+
   Projects MAY transition through states including `draft`, `submitted`, `validated`, `rejected`, or `archived`. Each transition MUST be recorded via event emission.
 
 ![Project Lifecycle States](../diagrams/lifecycle-states.png)
@@ -277,118 +294,265 @@ Read access to project metadata and status MUST be publicly available. Write ope
 The MRV Registry Contract SHALL manage hashes and metadata for monitoring, reporting, and verification (MRV) records. Each MRV record MUST reference an approved project and a specific reporting period.
 
 * **Submission**
+
   Authorized actors MAY submit monitoring report hashes along with associated metadata. The contract SHALL validate that the referenced project is approved and that the reporting period does not overlap with existing entries.
 
 * **Verification**
+
   Authorized verifiers MAY record verification outcomes, including net removal quantities and dates. The contract MUST emit a `MRVVerified` event containing the MRV ID, verifier address, and quantified amount.
 
 * **Hash Integrity**
+
   The contract SHALL store cryptographic hashes of each MRV report. Off-chain systems MAY verify report integrity by comparing content hashes to on-chain references.
 
 Temporal constraints MUST ensure that monitoring reports do not overlap and that all periods align with project timelines and methodology requirements.
 
 #### 5.2.3 Carbon Credit Token Contract
 
-The Carbon Credit Token Contract SHALL represent Carbon Removal Units (CRUs) as non-fungible tokens (NFTs) conforming to the ERC-721 standard \[3]. Each token MUST represent a verified quantity of carbon removal and MUST be traceable to its source MRV and project.
+The Carbon Credit Token Contract SHALL represent Carbon Removal Units (CRUs) as non-fungible tokens (NFTs) conforming to the ERC-721 standard [3]. Each token MUST represent a verified quantity of carbon removal and MUST be traceable to its source MRV and project.
 
 * **Minting**
+
   Only authorized actors MAY mint tokens. Each mint operation MUST reference a verified MRV, and the resulting token MUST include metadata fields for project ID, MRV ID, vintage year, and amount. A `CRUMinted` event MUST be emitted.
 
 * **Transfer**
+
   Token holders MAY transfer tokens subject to registry rules. All transfers MUST be logged with timestamps and involved addresses. Optional restrictions MAY be applied based on regulatory constraints or credit type.
 
 * **Retirement**
+
   Tokens MAY be retired to finalize a carbon offset claim. Retired tokens MUST be non-transferable and MUST retain all metadata for auditability. A `CRURetired` event MUST be emitted with a reason code.
 
 Each token’s metadata structure SHALL include project identifiers, reporting period, carbon amount, issuance and retirement status, and any relevant compliance attributes.
 
 #### 5.2.4 Access Control Contract
 
-The Access Control Contract manages roles, permissions, and authorization across the entire smart contract system. This contract provides centralized access control while enabling role delegation and permission management.
+The Access Control Contract SHALL define and enforce role-based permissions across all smart contract components. It SHALL provide centralized role assignment and delegation, authorization enforcement, and support for multi-signature governance.
 
-**Role Management** functions enable administrators to assign and revoke roles for different types of registry participants. Roles include project developers, verifiers, registry operators, and system administrators with specific permissions for each role type.
+* **Role Management**
 
-**Permission Validation** functions provide authorization checking for all contract operations. Permission validation ensures that only authorized parties can perform specific operations while maintaining audit trails of access attempts.
+  The contract SHALL implement functions to assign, update, and revoke roles. Roles SHALL include at minimum:
 
-**Multi-Signature Support** enables critical operations to require approval from multiple authorized parties. Multi-signature requirements provide additional security for sensitive operations such as contract upgrades and role assignments.
+  * `developer`
+  * `verifier`
+  * `registry_operator`
+  * `administrator`
 
-Emergency functions enable rapid response to security issues or system problems while maintaining appropriate governance controls and audit trails.
+  Each role SHALL be associated with a predefined set of permissions. Role changes SHALL emit traceable events.
+
+* **Authorization Logic**
+
+  All state-changing functions across contracts SHALL invoke permission checks defined in the access control layer. Unauthorized calls SHALL revert. Authorization failures SHALL be logged.
+
+* **Multi-Signature Operations**
+
+  The contract MAY support multi-signature approval for selected administrative functions, including role assignment and contract upgrades. Thresholds SHALL be configurable and enforced at the contract level.
+
+* **Emergency Controls**
+
+  The contract MAY implement pause and recovery mechanisms. These SHALL be restricted to privileged roles and SHALL emit events recording the initiating actor and timestamp.
 
 ### 5.3 Integration Requirements
 
-Smart contracts must integrate seamlessly with off-chain registry systems while maintaining data consistency and security. Integration requirements define interfaces, data formats, and synchronization mechanisms that enable reliable operation.
+Smart contracts defined by this specification SHALL interoperate with off-chain registry systems. All on-chain actions affecting registry state SHALL emit events suitable for real-time or deferred processing.
 
-**Event Monitoring** systems must monitor contract events in real-time to maintain synchronization between blockchain and registry systems. Event processing includes validation, error handling, and retry mechanisms to ensure reliable data synchronization.
+#### 5.3.1 Event Monitoring
 
-**State Synchronization** mechanisms ensure that off-chain systems accurately reflect on-chain state while handling network issues, reorganizations, and other blockchain-specific challenges.
+Off-chain components SHALL subscribe to contract events to maintain registry state. Event handlers SHALL implement error handling, deduplication, and retry logic. Events SHALL include sufficient metadata to reconstruct associated off-chain actions.
 
-**Gas Optimization** strategies minimize transaction costs while maintaining functionality and security. Optimization includes batch operations, efficient data structures, and careful function design to reduce computational requirements.
+#### 5.3.2 State Synchronization
 
-**Network Compatibility** ensures that contracts can operate on multiple blockchain networks with appropriate modifications for network-specific features and limitations.
+Registries SHALL implement synchronization mechanisms to resolve discrepancies between ledger and database state. Reconciliation procedures SHALL be invoked on failure or inconsistency. Blockchain reorganizations SHALL be accounted for.
+
+#### 5.3.3 Gas Optimization
+
+Contract functions SHALL be designed to minimize execution costs. Implementations MAY include batch operations and efficient data encoding. Computation-heavy tasks SHOULD be offloaded to the registry or avoided entirely.
+
+#### 5.3.4 Network Compatibility
+
+Contracts SHALL support deployment across multiple EVM-compatible networks. Network-specific parameters (e.g., gas limits, block time) SHALL be configurable. Interactions with external systems SHALL account for network constraints and finality assumptions.
 
 ### 5.4 Security Requirements
 
-Smart contract security is paramount given the immutable nature of blockchain systems and the value of carbon credits. Security requirements address common vulnerabilities while providing defense-in-depth protection.
+Smart contracts implementing this specification SHALL include controls to mitigate known vulnerabilities and ensure secure operation throughout their lifecycle. Security requirements apply to all contract modules and interfaces affecting registry state or token issuance.
 
-**Access Control Validation** ensures that all functions properly validate caller permissions before executing operations. Access control includes role-based permissions, multi-signature requirements, and emergency controls.
+#### 5.4.1 Access Control Validation
 
-**Input Validation** prevents malicious or malformed inputs from causing contract failures or security vulnerabilities. Validation includes parameter checking, overflow protection, and state consistency verification.
+All externally accessible functions SHALL validate the caller's permissions prior to execution. Role-based access control MUST be enforced consistently. Critical operations MAY include multi-signature thresholds. Emergency pause and recovery functions SHALL be restricted to privileged roles.
 
-**Reentrancy Protection** prevents reentrancy attacks through appropriate function modifiers and state management. Protection mechanisms include checks-effects-interactions patterns and reentrancy guards.
+#### 5.4.2 Input Validation
 
-**Upgrade Security** ensures that contract upgrades maintain security properties while enabling necessary improvements. Upgrade mechanisms include time delays, governance requirements, and migration procedures.
+Contracts SHALL validate input parameters for type, range, and expected state conditions. This includes protection against arithmetic overflows, zero-value identifiers, and inconsistent internal state. Inputs affecting identifiers, timestamps, or transfer amounts MUST be explicitly checked.
 
-**Audit Requirements** mandate comprehensive security audits before contract deployment and after significant upgrades. Audit processes include automated testing, manual review, and formal verification where appropriate.
+#### 5.4.3 Reentrancy Protection
+
+Contracts SHALL prevent reentrancy by applying function modifiers or the checks-effects-interactions pattern. Functions that modify contract state and initiate external calls MUST implement explicit reentrancy guards.
+
+#### 5.4.4 Upgrade Security
+
+If upgradeable proxy patterns are used, upgrade operations SHALL be protected by governance procedures. These MAY include time-locked execution, multi-party approval, and audit checkpoints. Migration functions MUST ensure state continuity and prevent unauthorized access.
+
+#### 5.4.5 Audit and Verification
+
+All contract modules affecting issuance, registry status, or state transitions SHALL undergo security review prior to deployment. Audit processes MAY include:
+
+* Static analysis
+* Manual code review
+* Test coverage reporting
+* Formal verification (where applicable)
+
+Audits SHALL be repeated after any material change to contract logic. Results SHOULD be published where transparency is required by the registry governance policy.
+
 
 ## 6. Extensibility Framework
 
+The specification defines a modular extensibility framework that allows registry systems to incorporate new carbon removal methodologies without altering the core protocol. Methodologies MAY define custom rules for monitoring, quantification, and validation, provided they conform to the interface and schema extension mechanisms defined below.
+
 ### 6.1 Methodology Extension System
 
-The Carbon Registry Specification provides a comprehensive framework for extending the system to support new carbon removal methodologies without requiring core system modifications. This extensibility ensures that the registry can adapt to emerging technologies and evolving scientific understanding while maintaining consistency and interoperability.
+This specification supports the use of versioned methodologies to define quantification logic, input requirements, validation procedures, and conformance rules for carbon removal activities.
 
-**Methodology Registration** enables the addition of new methodologies through a standardized process that includes methodology documentation, validation rules, and monitoring requirements. Registered methodologies receive unique identifiers and version numbers that enable precise referencing and evolution tracking.
+The process of introducing, modifying, or approving methodologies SHALL be subject to registry-level governance, as defined in Section 6.3. In regulated environments, methodology approval SHALL conform to applicable legal frameworks, including Article 8 of Regulation (EU) 2024/3012. The governance process MAY involve public consultation, expert review, or delegated authority.
 
-**Schema Extension** allows methodologies to define additional data fields and validation rules that extend the core project and monitoring data models. Extensions are implemented through JSON Schema composition that maintains backward compatibility while enabling methodology-specific requirements.
+#### 6.1.1 Methodology Registration
 
-**Validation Plugin Architecture** enables methodologies to implement custom validation logic that enforces methodology-specific requirements. Validation plugins operate within sandboxed environments that prevent interference with core system operations while enabling sophisticated validation capabilities.
+Each methodology SHALL be registered with a globally unique identifier, semantic version string, list of supported project types, and references to applicable monitoring protocols and calculation procedures.
 
-**Calculation Engine Integration** provides interfaces for methodology-specific calculation engines that quantify carbon removal amounts based on monitoring data. Calculation engines operate as independent services that receive standardized inputs and produce standardized outputs with uncertainty estimates.
+Only registered methodologies MAY be referenced in PDD or MRV documents. Revisions to a methodology that affect validation, calculation, or conformance SHALL result in a new version. A registry MAY impose governance review or approval conditions prior to activation or publication of a methodology.
+
+#### 6.1.2 Schema Extension
+
+Registered methodologies MAY extend the core schemas for PDD and MRV documents using [JSON Schema composition](https://json-schema.org/understanding-json-schema/structuring.html). Extensions SHALL NOT override or remove any required fields defined in the base schema. All additional fields SHALL be namespaced to avoid naming collisions and SHALL maintain backward compatibility.
+
+#### 6.1.3 Validation Plugin Architecture
+
+Methodologies MAY include executable validation logic. Plugins SHALL operate in isolated environments and SHALL accept only document inputs and associated metadata. Plugins SHALL return a machine-readable validation result and SHALL NOT modify registry state or access external resources.
+
+Plugin deployment MAY be subject to governance approval. All plugin logic SHALL be version-controlled and auditable.
+
+#### 6.1.4 Calculation Engine Integration
+
+Methodologies MAY delegate quantification to an external calculation engine that implements a deterministic input/output contract. Engines SHALL accept structured monitoring data and produce a net removal estimate with associated uncertainty bounds.
+
+Calculation logic SHALL be transparent and reproducible. Registries MAY cache, inspect, or independently verify outputs. Governance policies MAY define procedures for engine registration, audit, or revocation.
 
 ### 6.2 Integration Extension Points
 
-The specification defines multiple extension points that enable integration with external systems, services, and data sources without modifying core registry functionality. These extension points provide flexibility while maintaining system security and data integrity.
+The specification defines extension points for interoperating with external systems and services. These extension points SHALL enable integration without altering core registry logic or compromising data integrity.
 
-**Data Source Connectors** enable integration with external monitoring systems, satellite data providers, and IoT sensor networks. Connectors implement standardized interfaces that handle authentication, data retrieval, and format conversion while maintaining data provenance and quality tracking.
+#### 6.2.1 Data Source Connectors
 
-**Verification Service Integration** allows the system to work with different verification bodies and automated verification systems. Integration includes credential verification, workflow management, and result recording while maintaining independence and avoiding conflicts of interest.
+Connectors MAY be implemented to ingest data from external sources, including satellite imagery, IoT sensors, and third-party monitoring platforms. Each connector SHALL support:
 
-**Market Platform Integration** enables connectivity with carbon credit trading platforms, offset marketplaces, and registry federation systems. Integration maintains credit authenticity and prevents double-counting while enabling market liquidity and price discovery.
+* Authenticated data retrieval
+* Format transformation to registry-compliant structures
+* Provenance tracking and timestamp preservation
 
-**Regulatory Reporting Integration** provides interfaces for automated reporting to regulatory bodies and compliance systems. Reporting integration includes data formatting, submission scheduling, and confirmation tracking while maintaining data privacy and security.
+Connectors SHALL NOT modify core registry data. Data received via connectors SHALL be treated as input to monitoring or validation processes.
+
+#### 6.2.2 Verification Service Integration
+
+Verification workflows MAY be delegated to accredited third-party services. The registry SHALL support:
+
+* Verifier identity resolution and credential validation
+* Submission and retrieval of verification documents
+* Recording of outcomes with audit references
+
+Verification services SHALL operate independently of project developers and SHALL comply with applicable role-based access controls.
+
+#### 6.2.3 Federated Platform Integration
+
+Registries MAY expose endpoints for integration with trading platforms, offset marketplaces, and federation networks. Market-facing interfaces SHALL include:
+
+* Access to certified unit metadata
+* Traceability to originating MRV and PDD
+* Status updates reflecting transfer, retirement, or revocation
+
+Federated registries SHALL implement conflict prevention mechanisms to avoid duplicate issuance or double use.
+
+#### 6.2.4 Regulatory Reporting Integration
+
+Registry systems MAY support automated reporting to public or private compliance authorities. Reporting interfaces SHALL enable:
+
+* Data export in regulatory-compliant formats
+* Schedule-based or event-based submission
+* Confirmation logging and delivery status tracking
+
+Personal and sensitive data submitted to regulatory bodies SHALL be protected in accordance with applicable legal requirements.
 
 ### 6.3 Governance Extension Framework
 
-The specification includes governance mechanisms that enable stakeholder participation in system evolution while maintaining stability and security. Governance extensions provide transparency and accountability in decision-making processes.
+The Governance Extension Framework defines optional mechanisms that MAY be implemented by registry operators to support structured participation, oversight, and transparency. It enables stakeholder engagement in operational and methodological decision-making, while preserving the integrity of the core specification.
 
-**Proposal System** enables stakeholders to propose system improvements, methodology additions, and policy changes through structured processes. Proposals include impact assessments, implementation plans, and stakeholder consultation requirements.
+This extension does not modify conformance classes, document schemas, or defined lifecycle transitions. It applies only to registry-level governance processes that operate within the normative boundaries of this specification.
 
-**Voting Mechanisms** provide transparent decision-making processes for governance proposals with appropriate weighting for different stakeholder types. Voting systems include quorum requirements, time limits, and result implementation procedures.
+#### 6.3.1 Scope and Limitations
 
-**Advisory Committee Integration** enables the formation of technical and policy advisory committees that provide expertise and guidance for system development. Committee integration includes member selection, meeting management, and recommendation tracking.
+Governance extensions MAY be used to manage:
 
-**Audit and Compliance Framework** provides mechanisms for independent auditing of system operations, methodology implementations, and governance decisions. Audit frameworks include scope definition, auditor selection, and result publication requirements.
+* Proposals for methodology additions or updates
+* Operational policy decisions (e.g., audit frequency, data disclosure rules)
+* Verifier accreditation, registry service provider oversight, or stakeholder participation
+* Controlled adoption of new specification versions or optional modules
+* Dispute resolution, audit response, and compliance enforcement
+
+They SHALL NOT override:
+
+* Canonical document structures (PDD, MRV, CRU)
+* Defined lifecycle transitions or validation logic
+* Hashing, anchoring, and reconciliation procedures
+* Specification-level conformance rules
+
+#### 6.3.2 Governance Procedures
+
+A registry implementing this extension MAY define one or more of the following procedures:
+
+* **Proposal System**
+
+  Registries MAY implement a structured process for submitting and evaluating governance or methodology proposals. Proposals SHOULD include an impact assessment, implementation plan, and record of stakeholder consultation.
+
+* **Voting Mechanisms**
+
+  Where applicable, proposals MAY be subject to stakeholder voting. Voting systems SHALL define eligibility, quorum thresholds, voting weights (if applicable), and time limits. Results SHALL be recorded and implemented according to predefined rules.
+
+* **Advisory Committee Integration**
+
+  Registries MAY establish advisory committees to provide technical or policy guidance. Procedures for committee formation, member selection, meeting management, and recommendation tracking SHALL be documented.
+
+* **Audit and Compliance Framework**
+
+  Registries MAY define independent audit mechanisms for registry operations, certification workflows, or governance decisions. Audit procedures SHALL include scope definitions, auditor selection criteria, and result publication requirements.
+
+All governance activities SHALL be documented and made available for public or regulatory inspection, as appropriate to the operating context.
 
 ### 6.4 Technical Extension Architecture
 
-The technical architecture provides multiple layers of extensibility that enable customization and enhancement without compromising system integrity or performance. Technical extensions operate within defined boundaries that maintain security and compatibility.
+The Technical Extension Architecture defines optional implementation-level extension points that MAY be used to enhance registry functionality. Extensions SHALL operate outside the normative scope of this specification and SHALL NOT alter core document models, state transitions, or conformance logic.
 
-**Plugin Architecture** enables the addition of new functionality through standardized plugin interfaces. Plugins operate in isolated environments with defined resource limits and communication channels that prevent interference with core operations.
+Extensions MAY be used to support observability, non-canonical API functions, registry-specific workflows, and internal tooling. Implementations SHALL ensure that all extensions are isolated from core protocol logic and SHALL maintain compatibility with conformance rules.
 
-**API Extension Framework** allows the addition of new API endpoints and functionality while maintaining consistency with existing interfaces. API extensions include authentication integration, rate limiting, and documentation requirements.
+#### 6.4.1 Plugin Interface
 
-**Database Extension Schema** provides mechanisms for adding new data types and relationships while maintaining referential integrity and performance. Schema extensions include migration procedures, indexing requirements, and backup considerations.
+Registries MAY support a plugin interface for loading modular components such as internal jobs, visualization tools, or secondary data processors. Plugins SHALL operate in isolated environments and SHALL communicate only through defined interfaces. Resource constraints and execution boundaries SHALL be enforced.
 
-**Monitoring and Alerting Extensions** enable the addition of custom monitoring metrics, alerting rules, and dashboard components. Monitoring extensions integrate with existing observability infrastructure while providing methodology-specific insights and alerts.
+#### 6.4.2 API Extension Layer
 
-The extensibility framework ensures that the Carbon Registry Specification can evolve to meet changing requirements while maintaining the core principles of minimalism, transparency, and interoperability that define the system architecture.
+Implementations MAY expose additional API endpoints beyond those defined in the core specification. These endpoints SHALL be clearly documented and SHALL NOT conflict with canonical routes. Extensions MAY include authentication, rate limiting, and monitoring integration.
 
+#### 6.4.3 Supplemental Data Schemas
+
+Registries MAY extend internal database schemas to support additional metadata or analytic structures. Extended schemas SHALL maintain referential integrity with canonical identifiers and SHALL not affect lifecycle decisions or hashing logic. Schema extensions SHOULD follow migration and indexing procedures consistent with registry stability requirements.
+
+#### 6.4.4 Observability Integration
+
+Monitoring and alerting systems MAY be extended to support registry-specific metrics, dashboards, and threshold-based alerts. These extensions SHALL operate alongside core observability components and MAY support domain-specific visualizations, e.g., for methodology categories or verification throughput.
+
+This extension architecture is intended to support operational flexibility and system-specific enhancements without compromising interoperability, auditability, or specification compliance.
+
+
+## References
+
+[1] RFC 7946: The GeoJSON Format. https://tools.ietf.org/html/rfc7946  
+[2] JSON Schema Specification. https://json-schema.org/  
+[3] ERC-721: Non-Fungible Token Standard. https://eips.ethereum.org/EIPS/eip-721  
+[4] Regulation (EU) 2024/3012 establishing a Union certification framework for permanent carbon removals. https://eur-lex.europa.eu/eli/reg/2024/3012/oj
