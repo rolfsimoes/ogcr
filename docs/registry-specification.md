@@ -8,7 +8,7 @@
 
 ## Abstract
 
-The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON [1](#ref-1), JSON Schema [2](#ref-2), and ERC-721 [\[3\]](#ref-3) to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 [4](#ref-4).
+The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON [1](#ref-1), JSON Schema [2](#ref-2), and ERC-721 [[3](#ref-3)] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 [4](#ref-4).
 
 ## 1. Introduction
 
