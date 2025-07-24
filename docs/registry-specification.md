@@ -8,7 +8,7 @@
 
 ## Abstract
 
-The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON [1](#ref-1), JSON Schema [2](#ref-2), and ERC-721 [[3](#ref-3)] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 [4](#ref-4).
+The OGCR API Specification defines a registry framework for carbon removal certification based on open geospatial standards and verifiable ledger integration. It specifies canonical data formats, lifecycle states, API interfaces, and blockchain anchoring methods for managing project design, monitoring, verification, and issuance of removal attestations. The specification builds upon GeoJSON [[1](#ref-1)], JSON Schema [[2](#ref-2)], and ERC-721 [[3](#ref-3)] to support traceable, interoperable, and auditable carbon removal systems consistent with the Carbon Removal Certification Framework (CRCF) and Regulation (EU) 2024/3012 [[4](#ref-4)].
 
 ## 1. Introduction
 
@@ -30,7 +30,7 @@ The specification is governed by five principles:
 
 ### 1.3 Regulatory Context
 
-This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 [4](#ref-4). It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
+This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 [[4](#ref-4)]. It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
 
 ## 2. System Architecture
 
@@ -73,7 +73,7 @@ The specification defines standard integration patterns for registry federation,
 ![Core Data Models](../diagrams/core-data-models-class.png)
 *Figure 4: UML class diagram of canonical document types and their relationships.*
 
-This specification defines three canonical document types used to represent project declarations, monitoring results, and verified removal units. All core documents SHALL be serialized as GeoJSON Features [1](#ref-1) and SHALL follow schema constraints defined in the corresponding conformance classes.
+This specification defines three canonical document types used to represent project declarations, monitoring results, and verified removal units. All core documents SHALL be serialized as GeoJSON Features [[1](#ref-1)] and SHALL follow schema constraints defined in the corresponding conformance classes.
 
 ### 3.1 Project Design Document (PDD)
 
@@ -309,7 +309,7 @@ Temporal constraints MUST ensure that monitoring reports do not overlap and that
 
 #### 5.2.3 Carbon Credit Token Contract
 
-The Carbon Credit Token Contract SHALL represent Carbon Removal Units (CRUs) as non-fungible tokens (NFTs) conforming to the ERC-721 standard [3](#ref-3). Each token MUST represent a verified quantity of carbon removal and MUST be traceable to its source MRV and project.
+The Carbon Credit Token Contract SHALL represent Carbon Removal Units (CRUs) as non-fungible tokens (NFTs) conforming to the ERC-721 standard [[3](#ref-3)]. Each token MUST represent a verified quantity of carbon removal and MUST be traceable to its source MRV and project.
 
 * **Minting**
 
@@ -412,7 +412,7 @@ The specification defines a modular extensibility framework that allows registry
 
 This specification supports the use of versioned methodologies to define quantification logic, input requirements, validation procedures, and conformance rules for carbon removal activities.
 
-The process of introducing, modifying, or approving methodologies SHALL be subject to registry-level governance, as defined in Section 6.3. In regulated environments, methodology approval SHALL conform to applicable legal frameworks, including Article 8 of Regulation (EU) 2024/3012 [4](#ref-4). The governance process MAY involve public consultation, expert review, or delegated authority.
+The process of introducing, modifying, or approving methodologies SHALL be subject to registry-level governance, as defined in Section 6.3. In regulated environments, methodology approval SHALL conform to applicable legal frameworks, including Article 8 of Regulation (EU) 2024/3012 [[4](#ref-4)]. The governance process MAY involve public consultation, expert review, or delegated authority.
 
 #### 6.1.1 Methodology Registration
 
@@ -553,17 +553,13 @@ This extension architecture is intended to support operational flexibility and s
 ## References
 
 <a id="ref-1"></a>
-
 [1] RFC 7946: The GeoJSON Format. https://tools.ietf.org/html/rfc7946  
 
 <a id="ref-2"></a>
-
 [2] JSON Schema Specification. https://json-schema.org/  
 
 <a id="ref-3"></a>
-
 [3] ERC-721: Non-Fungible Token Standard. https://eips.ethereum.org/EIPS/eip-721  
 
 <a id="ref-4"></a>
-
 [4] Regulation (EU) 2024/3012 establishing a Union certification framework for permanent carbon removals. https://eur-lex.europa.eu/eli/reg/2024/3012/oj
