@@ -52,16 +52,6 @@ This architecture provides the operational boundaries necessary to support audit
 
 ### 2.2 Data Flow
 
-A conforming implementation SHALL support structured data flows for project registration, monitoring, verification, and issuance. Each transition SHALL be deterministic, auditable, and linked to a canonical document reference.
-
-**Project Registration** begins with the submission of a Project Design Document (PDD). The API layer SHALL validate schema conformance, methodology references, and geospatial footprint. Upon approval, a unique identifier SHALL be assigned and the document hash anchored on-chain.
-
-**Monitoring and Verification** involves the submission of Monitoring, Reporting, and Verification (MRV) documents. These SHALL include quantified removals, methodology-specific inputs, and verifier attestations. Verified reports SHALL be linked to prior PDDs and recorded for audit and credit issuance.
-
-**Credit Management** includes the creation, transfer, and retirement of carbon removal attestations. These SHALL be represented as cryptographically bound units (e.g., tokens), linked to verified removals and anchored for lifecycle traceability.
-
-### 2.2 Data Flow
-
 This specification defines the canonical data flows required to support lifecycle operations within a conforming registry system. These flows govern project registration, monitoring, verification, and issuance of removal attestations. Each transition SHALL be deterministic, auditable, and linked to a canonical document reference as defined in in this specification.
 
 * **Project Registration** begins with the submission of a [Project Design Document (PDD)](#31-project-design-document-pdd) through the API layer. The system SHALL validate schema compliance, methodology references, and spatial boundaries. Upon acceptance, a unique project identifier SHALL be assigned, and a document hash SHALL be anchored in the [Ledger Layer](#21-architectural-overview).
