@@ -125,4 +125,5 @@ The specification aligns with:
 
 **OGCR Consortium** - Advancing carbon removal through open standards and transparent governance.
 
-`This work is funded by the European Commission (EC) through the project "Intergenerational Open Geospatial Carbon Registry - Open-Source Tools for Connecting EU Agricultural Policies (CAP) and Carbon Removals and Carbon Farming (CRCF) Regulation to national inventories and carbon markets" (1 Jun. 2025 – 31 May 2029 - 101218854)`
+
+>*This work is funded by the European Commission (EC) through the project "Intergenerational Open Geospatial Carbon Registry - Open-Source Tools for Connecting EU Agricultural Policies (CAP) and Carbon Removals and Carbon Farming (CRCF) Regulation to national inventories and carbon markets" (1 Jun. 2025 – 31 May 2029 - 101218854)*
