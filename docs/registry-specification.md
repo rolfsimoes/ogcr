@@ -32,21 +32,23 @@ The specification is governed by five principles:
 
 This specification is intended to support implementation of Article 9 and Annexes I–III of Regulation (EU) 2024/3012 [[4](#ref-4)]. It addresses certification requirements for permanent carbon removals, carbon farming, and carbon storage in products. It specifies data fields and workflows necessary for compliance with monitoring, verification, additionality, permanence, and liability provisions. The architecture supports registry interoperability, auditability, and integration with national and international carbon accounting mechanisms.
 
+
 ## 2. System Architecture
 
 ### 2.1 Architectural Overview
 
-A registry system conforming to this specification SHALL implement a three-layer architecture that separates interface logic, application state management, and verifiable state anchoring. Each layer SHALL be functionally distinct and interoperable with external systems and services.
+This specification defines a three-layer architecture required for all conforming implementations. The architecture constrains the separation of user-facing interfaces, application logic, and verifiable state anchoring. Each layer has distinct responsibilities and MUST interoperate with the others to support the lifecycle, validation, and traceability requirements defined in Sections [3](#3-core-data-models), [4](#4-api-design), and [5](#5-smart-contract-requirements).
 
 ![System Architecture](../diagrams/system-architecture-component.png)
+*Figure 1: Reference system architecture defining Application, API, and Ledger layers.*
 
-*Figure 1: Reference system architecture defining application, API, and ledger layers.*
+* The **Application Layer** provides interfaces for human and machine actors. This includes web portals, mobile applications, and automated clients. It SHALL support identity delegation, task execution, and interaction with the API layer.
 
-The **Application Layer** provides interfaces for human and machine actors. This includes web portals, mobile clients, and automated integrations. It SHALL support user interaction, identity delegation, and task coordination.
+* The **API Layer** exposes a RESTful interface for managing lifecycle operations on registry artifacts. It SHALL implement document validation, access control, schema enforcement, and canonical serialization of [PDDs](#31-project-design-document-pdd), [MRVs](#32-monitoring-reporting-and-verification-mrv), and [CRUs](#33-carbon-removal-units-crus). It MAY coordinate with external systems such as verification bodies or monitoring data providers.
 
-The **API Layer** exposes a RESTful interface for lifecycle operations on registry artifacts. It SHALL implement validation, access control, schema enforcement, and canonical serialization. It MAY coordinate with external services for verification or monitoring.
+* The **Ledger Layer** anchors critical registry state to an immutable, cryptographically verifiable record. It SHALL record document hashes, lifecycle events, and token-related operations. It MUST support auditability and MAY expose events for off-chain synchronization.
 
-The **Blockchain Layer** maintains immutable references to registry state. It SHALL record document hashes, lifecycle events, and token-related actions. Ledger anchoring MUST be cryptographically verifiable and support independent audit.
+This architecture provides the operational boundaries necessary to support auditability, traceability, and certification workflows aligned with the EU Regulation 2024/3012 [[4](#ref-4)]. All implementations claiming conformance SHALL implement and integrate these layers in accordance with the specifications defined herein.
 
 ### 2.2 Data Flow
 
@@ -58,15 +60,31 @@ A conforming implementation SHALL support structured data flows for project regi
 
 **Credit Management** includes the creation, transfer, and retirement of carbon removal attestations. These SHALL be represented as cryptographically bound units (e.g., tokens), linked to verified removals and anchored for lifecycle traceability.
 
+### 2.2 Data Flow
+
+This specification defines the canonical data flows required to support lifecycle operations within a conforming registry system. These flows govern project registration, monitoring, verification, and issuance of removal attestations. Each transition SHALL be deterministic, auditable, and linked to a canonical document reference as defined in in this specification.
+
+* **Project Registration** begins with the submission of a [Project Design Document (PDD)](#31-project-design-document-pdd) through the API layer. The system SHALL validate schema compliance, methodology references, and spatial boundaries. Upon acceptance, a unique project identifier SHALL be assigned, and a document hash SHALL be anchored in the [Ledger Layer](#21-architectural-overview).
+
+* **Monitoring and Verification** involves the submission of [Monitoring, Reporting, and Verification (MRV)](#32-monitoring-reporting-and-verification-mrv) documents for approved projects. These documents SHALL include quantified removal estimates, methodology-specific inputs, and verification metadata. Verified MRVs SHALL be cryptographically linked to the corresponding PDDs and SHALL serve as the basis for issuance.
+
+* **Credit Management** includes the creation, transfer, and retirement of [Carbon Removal Units (CRUs)](#33-carbon-removal-units-crus). Each CRU SHALL represent a verified quantity of net removal and SHALL be traceable to its source MRV. All issuance and lifecycle operations MUST be anchored on-chain and recorded for auditability.
+
+These flows are mandatory for conformance and SHALL be implemented in accordance with the interface, validation, and ledger requirements defined in this specification.
+
 ### 2.3 Integration Patterns
 
-The specification defines standard integration patterns for registry federation, blockchain abstraction, and third-party system interoperability.
+This specification defines required integration patterns that ensure consistency, traceability, and interoperability across registry systems, blockchain networks, and external data sources. These patterns are normative and SHALL be implemented as specified to ensure conformance.
 
-**Registry Federation** enables interoperability between multiple registry implementations. Federated systems SHALL prevent double counting, preserve provenance, and maintain cross-jurisdictional coherence.
+* **Registry Federation**
+  Conforming implementations MAY participate in federated registry networks. Federated systems SHALL implement mechanisms to prevent credit double counting, preserve document provenance, and ensure unique identifiers across jurisdictions. Federation models MUST conform to the document structure and state management rules defined in this specification.
 
-**Blockchain Integration** SHALL support verifiable anchoring of document state and token issuance. The specification defines minimum on-chain data requirements, while allowing optimizations for gas efficiency, throughput, and chain-agnostic deployments.
+* **Ledger Integration**
+  All conforming systems SHALL implement ledger anchoring of document hashes and state transitions as defined in [Section 5](#5-smart-contract-requirements). Implementations MAY abstract underlying blockchain infrastructure, provided that minimum data availability and auditability guarantees are preserved. Optimizations for gas efficiency and chain selection are permitted but MUST retain hash consistency and public verifiability.
 
-**External System Integration** MAY include data providers, verifiers, or market actors. All integrations SHALL conform to standardized data schemas and authenticated communication protocols to ensure consistency and integrity.
+* **External System Integration**
+  Systems MAY interoperate with verifiers, monitoring data providers, or market platforms. All integrations SHALL use authenticated communication protocols and standardized data representations as defined in this specification. Off-chain processes involved in validation or verification MUST maintain traceable links to their associated on-chain references.
+
 
 ## 3. Core Data Models
 
