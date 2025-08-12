@@ -175,17 +175,25 @@ class OGCRSpecChecker:
         
         links = document.get('links', [])
         if links:
+            # Links must be provided as an array. If the value is not a list,
+            # schema validation will already flag it, but without this check we
+            # would iterate over the invalid value and produce confusing
+            # per-character errors (e.g. "Link 0 must be an object").
+            if not isinstance(links, list):
+                errors.append("links must be an array of link objects")
+                return errors
+
             for i, link in enumerate(links):
                 if not isinstance(link, dict):
                     errors.append(f"Link {i} must be an object")
                     continue
-                    
+
                 # Check required fields
                 if 'rel' not in link:
                     errors.append(f"Link {i} missing required 'rel' field")
                 if 'href' not in link:
                     errors.append(f"Link {i} missing required 'href' field")
-                    
+
                 # Validate href is a valid URL
                 href = link.get('href')
                 if href:
