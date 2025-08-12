@@ -159,11 +159,35 @@ class TestProjectEndpoints:
     
     def test_list_projects_with_filters(self):
         """Test listing projects with filters"""
+        # Create a draft project
+        client.post(
+            "/projects",
+            json=VALID_PDD,
+            headers={"Authorization": MOCK_TOKEN},
+        )
+
+        # Create and submit another project so it doesn't match the filter
+        create_response = client.post(
+            "/projects",
+            json=VALID_PDD,
+            headers={"Authorization": MOCK_TOKEN},
+        )
+        submitted_project_id = create_response.json()["id"]
+        client.post(
+            f"/projects/{submitted_project_id}/submit",
+            headers={"Authorization": MOCK_TOKEN},
+        )
+
         response = client.get("/projects?status=draft&limit=5")
         assert response.status_code == 200
-        
+
         data = response.json()
         assert data["pagination"]["limit"] == 5
+        # Ensure all returned projects match the filter
+        assert len(data["data"]) > 0
+        assert all(project["status"] == "draft" for project in data["data"])
+        # The submitted project should not be included
+        assert submitted_project_id not in [p["id"] for p in data["data"]]
     
     def test_update_project_success(self):
         """Test updating a draft project"""
