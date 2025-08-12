@@ -246,9 +246,9 @@ async def list_projects(
     filtered_projects = []
     
     for project_data in projects_db.values():
-        if status and project_data["properties"]["status"] != status:
+        if status and project_data["properties"]["status"] != status.value:
             continue
-        if project_type and project_data["properties"]["project_type"] != project_type:
+        if project_type and project_data["properties"]["project_type"] != project_type.value:
             continue
         filtered_projects.append({
             "id": project_data["id"],
@@ -406,7 +406,7 @@ async def list_mrv_reports(
     for mrv_data in mrv_db.values():
         if mrv_data["properties"]["project_id"] != project_id:
             continue
-        if status and mrv_data["properties"]["verification_status"] != status:
+        if status and mrv_data["properties"]["verification_status"] != status.value:
             continue
         filtered_reports.append(mrv_data)
     
