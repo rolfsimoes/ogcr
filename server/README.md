@@ -111,14 +111,12 @@ curl "http://localhost:8000/projects?status=draft&limit=10"
 ### Project Structure
 
 ```
-api-server/
+server/
 ├── app/
 │   └── main.py          # Main FastAPI application
-├── tests/               # Test files
-├── schemas/             # JSON schemas
 ├── Dockerfile           # Docker configuration
 ├── requirements.txt     # Python dependencies
-└── README.md           # This file
+└── README.md            # This file
 ```
 
 ### Adding New Endpoints
@@ -134,7 +132,7 @@ api-server/
 Run the test suite:
 
 ```bash
-pytest tests/
+pytest
 ```
 
 ## License
