@@ -262,10 +262,27 @@ class TestLinksValidation(TestOGCRSpecChecker):
                 # Missing 'rel' field
             }
         ]
-        
+
         valid, errors = self.checker.validate_document(doc_with_links, "pdd")
         assert not valid
         assert any("missing required 'rel' field" in error for error in errors)
+
+    def test_links_field_not_array(self):
+        """Links field must be an array of link objects"""
+        doc_with_links = self.valid_pdd.copy()
+        # Provide a single link object instead of an array
+        doc_with_links["links"] = {
+            "rel": "self",
+            "href": "https://example.com"
+        }
+
+        valid, errors = self.checker.validate_document(doc_with_links, "pdd")
+        assert not valid
+        # Schema should complain about type mismatch, and our validator should
+        # add a clear error without emitting per-character object errors.
+        assert any("is not of type 'array'" in error for error in errors)
+        assert any("links must be an array" in error for error in errors)
+        assert not any("Link 0 must be an object" in error for error in errors)
 
 class TestBboxValidation(TestOGCRSpecChecker):
     """Test bbox validation"""
