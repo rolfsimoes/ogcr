@@ -93,6 +93,12 @@ def main():
     total_count += 1
     if run_command("python -c 'import sys; sys.path.append(\"server\"); from app.main import app; print(\"FastAPI loaded successfully\")'", cwd=base_dir):
         success_count += 1
+
+    # Test 7: OpenAPI Specification Validation
+    print("\n7. Validating OpenAPI Specification...")
+    total_count += 1
+    if run_command("python tools/validate_openapi.py", cwd=base_dir):
+        success_count += 1
     
     # Summary
     print("\n" + "=" * 50)
