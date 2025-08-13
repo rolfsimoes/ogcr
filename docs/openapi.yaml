@@ -1,0 +1,195 @@
+openapi: 3.0.3
+info:
+  title: OGCR API
+  description: OpenAPI specification for the OGCR API.
+  version: 0.1.0
+servers:
+  - url: https://api.ogcr.org/v1
+    description: Production server
+  - url: https://api-sandbox.carbon-registry.org/v1
+    description: Sandbox server
+security:
+  - OAuth2: []
+paths:
+  /projects:
+    post:
+      summary: Create a new project
+      operationId: createProject
+      security:
+        - OAuth2: [projects:write]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+            example:
+              type: Feature
+              ogcr_version: '0.1.0'
+              profile: pdd
+              geometry:
+                type: Polygon
+                coordinates: [[[0,0],[1,0],[1,1],[0,1],[0,0]]]
+              properties:
+                name: Sample Project
+                project_type: afforestation
+      responses:
+        '201':
+          description: Project created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/Error'
+  /projects/{projectId}:
+    get:
+      summary: Retrieve a project by ID
+      operationId: getProject
+      security:
+        - OAuth2: [projects:read]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: ID of the project to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Project details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/Error'
+  /webhooks:
+    post:
+      summary: Register a webhook
+      operationId: createWebhook
+      security:
+        - OAuth2: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookConfig'
+            example:
+              url: https://your-app.com/webhooks/carbon-registry
+              events:
+                - project.approved
+                - credit.issued
+              secret: your-webhook-secret
+      responses:
+        '201':
+          description: Webhook registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Webhook'
+        '400':
+          $ref: '#/components/responses/Error'
+components:
+  securitySchemes:
+    OAuth2:
+      type: oauth2
+      flows:
+        authorizationCode:
+          authorizationUrl: https://api.ogcr.org/oauth/authorize
+          tokenUrl: https://api.ogcr.org/oauth/token
+          scopes:
+            projects:read: Read access to project data
+            projects:write: Create and update project data
+            projects:approve: Approve projects
+    ApiKeyAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Project:
+      type: object
+      required:
+        - type
+        - ogcr_version
+        - profile
+        - geometry
+        - properties
+      properties:
+        type:
+          type: string
+          enum: [Feature]
+        id:
+          type: string
+        ogcr_version:
+          type: string
+        profile:
+          type: string
+          enum: [pdd]
+        geometry:
+          type: object
+          description: GeoJSON geometry object
+        properties:
+          type: object
+          required:
+            - name
+            - project_type
+          properties:
+            name:
+              type: string
+            project_type:
+              type: string
+    WebhookConfig:
+      type: object
+      required:
+        - url
+        - events
+      properties:
+        url:
+          type: string
+          format: uri
+        events:
+          type: array
+          items:
+            type: string
+        secret:
+          type: string
+    Webhook:
+      allOf:
+        - $ref: '#/components/schemas/WebhookConfig'
+        - type: object
+          properties:
+            id:
+              type: string
+    Error:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+            message:
+              type: string
+            details:
+              type: array
+              items:
+                type: object
+                properties:
+                  field:
+                    type: string
+                  message:
+                    type: string
+            timestamp:
+              type: string
+              format: date-time
+            request_id:
+              type: string
+  responses:
+    Error:
+      description: Error response
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

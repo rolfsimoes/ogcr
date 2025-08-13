@@ -1,0 +1,23 @@
+name: OpenAPI Validation
+
+on:
+  push:
+    paths:
+      - 'docs/openapi.yaml'
+      - 'tools/validate_openapi.py'
+      - '.github/workflows/openapi-validation.yml'
+  pull_request:
+    paths:
+      - 'docs/openapi.yaml'
+      - 'tools/validate_openapi.py'
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
+      - run: pip install -r tools/requirements.txt
+      - run: python tools/validate_openapi.py
