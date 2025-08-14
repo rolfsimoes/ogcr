@@ -11,7 +11,69 @@ servers:
 security:
   - OAuth2: []
 paths:
+  /health:
+    get:
+      summary: Health check
+      operationId: getHealth
+      security: []
+      responses:
+        '200':
+          description: API health status
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    example: ok
   /projects:
+    get:
+      summary: List projects
+      operationId: listProjects
+      security:
+        - OAuth2: [projects:read]
+      parameters:
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [draft, submitted, under_review, approved, rejected, archived]
+          description: Filter projects by status
+        - name: project_type
+          in: query
+          schema:
+            type: string
+            enum: [afforestation, reforestation, soil_carbon, biochar, direct_air_capture, enhanced_weathering, blue_carbon, biomass_energy_ccs]
+          description: Filter projects by type
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Maximum number of projects to return
+        - name: offset
+          in: query
+          schema:
+            type: integer
+            minimum: 0
+            default: 0
+          description: Offset for pagination
+      responses:
+        '200':
+          description: List of projects
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectListResponse'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
     post:
       summary: Create a new project
       operationId: createProject
@@ -42,6 +104,10 @@ paths:
                 $ref: '#/components/schemas/Project'
         '400':
           $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
   /projects/{projectId}:
     get:
       summary: Retrieve a project by ID
@@ -62,6 +128,43 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Project'
+        '404':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
+    put:
+      summary: Update a project
+      operationId: updateProject
+      security:
+        - OAuth2: [projects:write]
+      parameters:
+        - name: projectId
+          in: path
+          required: true
+          description: ID of the project to update
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+      responses:
+        '200':
+          description: Updated project
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Project'
+        '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
+          $ref: '#/components/responses/Error'
         '404':
           $ref: '#/components/responses/Error'
   /webhooks:
@@ -90,6 +193,10 @@ paths:
               schema:
                 $ref: '#/components/schemas/Webhook'
         '400':
+          $ref: '#/components/responses/Error'
+        '401':
+          $ref: '#/components/responses/Error'
+        '403':
           $ref: '#/components/responses/Error'
 components:
   securitySchemes:
@@ -124,22 +231,134 @@ components:
           type: string
         ogcr_version:
           type: string
+          pattern: '^\d+\.\d+\.\d+$'
         profile:
           type: string
           enum: [pdd]
         geometry:
           type: object
           description: GeoJSON geometry object
+        bbox:
+          type: array
+          items:
+            type: number
+          minItems: 4
+          maxItems: 4
         properties:
-          type: object
-          required:
-            - name
-            - project_type
-          properties:
-            name:
-              type: string
-            project_type:
-              type: string
+          $ref: '#/components/schemas/ProjectProperties'
+        ledger_reference:
+          $ref: '#/components/schemas/LedgerReference'
+        links:
+          type: array
+          items:
+            $ref: '#/components/schemas/Link'
+    ProjectProperties:
+      type: object
+      required:
+        - name
+        - creation_date
+        - project_type
+        - status
+        - actor_id
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        creation_date:
+          type: string
+          format: date-time
+        last_updated:
+          type: string
+          format: date-time
+        project_type:
+          type: string
+          enum: [afforestation, reforestation, soil_carbon, biochar, direct_air_capture, enhanced_weathering, blue_carbon, biomass_energy_ccs]
+        status:
+          type: string
+          enum: [draft, submitted, under_review, approved, rejected, archived]
+        actor_id:
+          type: string
+        methodology:
+          $ref: '#/components/schemas/MethodologyReference'
+        baseline_scenario:
+          type: string
+        expected_annual_benefit:
+          type: number
+          minimum: 0
+    MethodologyReference:
+      type: object
+      required:
+        - id
+        - version
+      properties:
+        id:
+          type: string
+        version:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+    LedgerReference:
+      type: object
+      required:
+        - transaction_id
+        - block_number
+        - timestamp
+      properties:
+        transaction_id:
+          type: string
+        block_number:
+          type: integer
+        timestamp:
+          type: string
+          format: date-time
+        ledger_id:
+          type: string
+    Link:
+      type: object
+      required:
+        - rel
+        - href
+      properties:
+        rel:
+          type: string
+        href:
+          type: string
+          format: uri
+        type:
+          type: string
+        title:
+          type: string
+    PaginationResponse:
+      type: object
+      required:
+        - total
+        - limit
+        - offset
+        - has_more
+      properties:
+        total:
+          type: integer
+        limit:
+          type: integer
+        offset:
+          type: integer
+        has_more:
+          type: boolean
+    ProjectListResponse:
+      type: object
+      required:
+        - data
+        - pagination
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Project'
+        pagination:
+          $ref: '#/components/schemas/PaginationResponse'
     WebhookConfig:
       type: object
       required:
