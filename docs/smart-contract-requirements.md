@@ -6,7 +6,7 @@
 **Status:** Draft  
 **License:** CC-BY 4.0
 
-## Executive Summary
+## Overview
 
 This document defines the comprehensive requirements for smart contracts that support the OGCR API Specification. The smart contract system provides immutable record-keeping, transparent governance, and trustless verification capabilities for carbon removal projects, monitoring reports, and credit management.
 
