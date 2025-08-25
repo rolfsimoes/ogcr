@@ -11,9 +11,9 @@ The OGCR API provides comprehensive access to carbon removal project management,
 
 This documentation covers all available endpoints, authentication methods, data models, and integration patterns. The API is designed for both human users through web interfaces and automated systems through server-to-server integrations.
 
-## Authentication
+## 1. Authentication
 
-### OAuth 2.0 Authentication
+### 1.1 OAuth 2.0 Authentication
 
 The API supports OAuth 2.0 authentication for web applications and mobile clients. The following grant types are supported:
 
@@ -21,7 +21,7 @@ The API supports OAuth 2.0 authentication for web applications and mobile client
 - **Client Credentials Grant**: For server-to-server integrations
 - **Refresh Token Grant**: For maintaining long-term access
 
-#### Authorization Endpoint
+#### 1.1.1 Authorization Endpoint
 ```
 GET /oauth/authorize
 ```
@@ -33,7 +33,7 @@ GET /oauth/authorize
 - `scope`: Requested permissions (space-separated)
 - `state`: CSRF protection token
 
-#### Token Endpoint
+#### 1.1.2 Token Endpoint
 ```
 POST /oauth/token
 ```
@@ -45,7 +45,7 @@ POST /oauth/token
 - `client_secret`: Your application's client secret
 - `redirect_uri`: Must match authorization request
 
-#### Scopes
+#### 1.1.3 Scopes
 
 | Scope | Description |
 |-------|-------------|
@@ -59,7 +59,7 @@ POST /oauth/token
 | `credits:transfer` | Transfer credits |
 | `credits:retire` | Retire credits |
 
-### API Key Authentication
+### 1.2 API Key Authentication
 
 For server-to-server integrations, API keys provide a simpler authentication method. Include the API key in the `Authorization` header:
 
@@ -69,7 +69,7 @@ Authorization: Bearer YOUR_API_KEY
 
 API keys are associated with specific organizations and include built-in rate limiting and scope restrictions.
 
-## Rate Limiting
+## 2. Rate Limiting
 
 The API implements rate limiting to ensure fair usage and system stability:
 
@@ -84,7 +84,7 @@ Rate limit information is included in response headers:
 - `X-RateLimit-Remaining`: Remaining requests in current window
 - `X-RateLimit-Reset`: Unix timestamp when window resets
 
-## Error Handling
+## 3. Error Handling
 
 The API uses standard HTTP status codes and provides detailed error responses in JSON format:
 
@@ -105,7 +105,7 @@ The API uses standard HTTP status codes and provides detailed error responses in
 }
 ```
 
-### Common Error Codes
+### 3.1 Common Error Codes
 
 | HTTP Status | Error Code | Description |
 |-------------|------------|-------------|
@@ -117,9 +117,9 @@ The API uses standard HTTP status codes and provides detailed error responses in
 | 429 | `RATE_LIMIT_EXCEEDED` | Too many requests |
 | 500 | `INTERNAL_ERROR` | Server error |
 
-## Project Management Endpoints
+## 4. Project Management Endpoints
 
-### Create Project
+### 4.1 Create Project
 
 Creates a new carbon removal project by submitting a Project Design Document (PDD).
 
@@ -170,7 +170,7 @@ For a complete example of a valid Project Design Document, see [examples/valid_p
 }
 ```
 
-### Get Project
+### 4.2 Get Project
 
 Retrieves detailed information about a specific project.
 
@@ -211,7 +211,7 @@ GET /projects/{projectId}
 }
 ```
 
-### List Projects
+### 4.3 List Projects
 
 Retrieves a paginated list of projects with filtering options.
 
@@ -255,7 +255,7 @@ GET /projects?status=approved&project_type=afforestation&limit=50&sort=created_a
 }
 ```
 
-### Update Project
+### 4.4 Update Project
 
 Updates an existing project. Only allowed for projects in `draft` status.
 
@@ -267,7 +267,7 @@ PUT /projects/{projectId}
 
 **Response (200 OK):** Updated project object
 
-### Submit Project for Approval
+### 4.5 Submit Project for Approval
 
 Submits a project for validation and approval.
 
@@ -287,7 +287,7 @@ POST /projects/{projectId}/submit
 }
 ```
 
-### Approve Project
+### 4.6 Approve Project
 
 Approves a submitted project. Restricted to authorized validators.
 
@@ -312,9 +312,9 @@ POST /projects/{projectId}/approve
 }
 ```
 
-## MRV Management Endpoints
+## 5. MRV Management Endpoints
 
-### Submit MRV Report
+### 5.1 Submit MRV Report
 
 Submits a monitoring, reporting, and verification report for a specific project.
 
@@ -379,7 +379,7 @@ For a complete example of a valid MRV document, see [examples/valid_mrv.json](..
 }
 ```
 
-### Get MRV Report
+### 5.2 Get MRV Report
 
 Retrieves a specific MRV report.
 
@@ -389,7 +389,7 @@ GET /projects/{projectId}/monitoring/{mrvId}
 
 **Response (200 OK):** Complete MRV document
 
-### List MRV Reports
+### 5.3 List MRV Reports
 
 Retrieves MRV reports for a specific project.
 
@@ -404,7 +404,7 @@ GET /projects/{projectId}/monitoring
 - `limit`: Number of results per page
 - `offset`: Number of results to skip
 
-### Verify MRV Report
+### 5.4 Verify MRV Report
 
 Records verification results for an MRV report. Restricted to authorized verifiers.
 
@@ -432,9 +432,9 @@ POST /projects/{projectId}/monitoring/{mrvId}/verify
 }
 ```
 
-## Credit Management Endpoints
+## 6. Credit Management Endpoints
 
-### List Credits
+### 6.1 List Credits
 
 Retrieves carbon credits with filtering options.
 
@@ -472,7 +472,7 @@ GET /credits
 }
 ```
 
-### Get Credit Details
+### 6.2 Get Credit Details
 
 Retrieves detailed information about a specific credit.
 
@@ -499,7 +499,7 @@ GET /credits/{creditId}
 }
 ```
 
-### Transfer Credits
+### 6.3 Transfer Credits
 
 Transfers ownership of carbon credits.
 
@@ -525,7 +525,7 @@ POST /credits/transfer
 }
 ```
 
-### Retire Credits
+### 6.4 Retire Credits
 
 Permanently retires carbon credits for offsetting.
 
@@ -551,9 +551,9 @@ POST /credits/{creditId}/retire
 }
 ```
 
-## Data Models
+## 7. Data Models
 
-### Project Design Document (PDD)
+### 7.1 Project Design Document (PDD)
 
 The PDD extends GeoJSON Feature with carbon-specific properties:
 
@@ -584,7 +584,7 @@ The PDD extends GeoJSON Feature with carbon-specific properties:
 }
 ```
 
-### MRV Document
+### 7.2 MRV Document
 
 The MRV document structure for monitoring reports:
 
@@ -613,7 +613,7 @@ The MRV document structure for monitoring reports:
 }
 ```
 
-### Carbon Removal Unit (CRU)
+### 7.3 Carbon Removal Unit (CRU)
 
 Carbon credit token representation:
 
@@ -633,11 +633,11 @@ Carbon credit token representation:
 }
 ```
 
-## Webhooks
+## 8. Webhooks
 
 The API supports webhooks for real-time notifications of important events.
 
-### Webhook Events
+### 8.1 Webhook Events
 
 | Event Type | Description |
 |------------|-------------|
@@ -652,7 +652,7 @@ The API supports webhooks for real-time notifications of important events.
 | `credit.transferred` | Credits transferred |
 | `credit.retired` | Credits retired |
 
-### Webhook Configuration
+### 8.2 Webhook Configuration
 
 Configure webhooks through the API:
 
@@ -669,7 +669,7 @@ POST /webhooks
 }
 ```
 
-### Webhook Payload
+### 8.3 Webhook Payload
 
 Webhook payloads include event metadata and relevant data:
 
@@ -685,7 +685,7 @@ Webhook payloads include event metadata and relevant data:
 }
 ```
 
-## SDKs and Libraries
+## 9. SDKs and Libraries
 
 Official SDKs are available for popular programming languages:
 
@@ -694,7 +694,7 @@ Official SDKs are available for popular programming languages:
 - **Go**: `github.com/carbon-registry/sdk-go`
 - **Java**: `com.carbon-registry:sdk-java`
 
-### JavaScript Example
+### 9.1 JavaScript Example
 
 ```javascript
 import { CarbonRegistryClient } from '@carbon-registry/sdk-js';
@@ -722,9 +722,9 @@ const project = await client.projects.create({
 console.log('Project created:', project.id);
 ```
 
-## Testing and Development
+## 10. Testing and Development
 
-### Sandbox Environment
+### 10.1 Sandbox Environment
 
 A sandbox environment is available for testing and development:
 
@@ -733,7 +733,7 @@ A sandbox environment is available for testing and development:
 - **Data**: Test data that can be freely modified
 - **Rate Limits**: Relaxed for development
 
-### API Testing Tools
+### 10.2 API Testing Tools
 
 Interactive API documentation and testing tools are available at:
 - **Swagger UI**: `https://api.carbon-registry.org/docs`
