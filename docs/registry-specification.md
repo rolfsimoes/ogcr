@@ -85,11 +85,93 @@ This specification defines three canonical document types used to represent proj
 
 ### 3.1 Project Design Document (PDD)
 
-The Project Design Document (PDD) defines the initial parameters of a carbon removal project. It SHALL contain project geometry, activity classification, actor identifiers, and methodological references. The PDD establishes the scope against which monitoring, verification, and issuance processes are evaluated.
+The Project Design Document (PDD) defines the foundational parameters of a carbon removal project. It establishes the spatial scope, governance, and methodological basis against which monitoring, verification, and issuance processes are evaluated. Each PDD SHALL conform to the GeoJSON Feature model and SHALL declare `profile: "pdd"` to enable schema validation.
 
-Each PDD SHALL conform to the GeoJSON Feature model and SHALL include a valid `geometry` field representing the project boundary in WGS84 coordinates. The `properties` object SHALL contain required fields including project name, type, actor ID, and methodology reference.
+#### 3.1.1 PDD Fields
 
-PDDs SHALL reference approved methodologies that define quantification rules, monitoring requirements, and validation conditions. The PDD MAY include versioning metadata to track document evolution. Once validated, PDDs SHALL be immutable and anchored via cryptographic hash for audit purposes.
+| Field Name         | Type                                                | Description                                                                                                                                                                                                 |
+| ------------------ | --------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`             | string                                              | **REQUIRED.** MUST be `"Feature"` per GeoJSON. Identifies the object as a geographic feature with spatial footprint and metadata.                                                                          |
+| `id`               | string                                              | **REQUIRED.** Globally unique, immutable identifier for the PDD. MUST be stable across versions. Recommended: UUIDv4 or hash-based ID.                                                                      |
+| `crgf_version`     | string                                              | **REQUIRED.** Indicates the version of the CRGF spec this document conforms to. Follows [Semantic Versioning](https://semver.org).                                                                           |
+| `profile`          | string                                              | **REQUIRED.** MUST be `"pdd"`. Identifies the document type for validation purposes.                                                                                                                        |
+| `geometry`         | GeoJSON Geometry Object                             | **REQUIRED.** Geographic footprint of the project. MUST comply with [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946). Typically a `Polygon` or `MultiPolygon`. Used for spatial indexing and MRV validation. |
+| `bbox`             | \[number]                                           | REQUIRED if `geometry` is not null. Bounding box array for fast spatial filtering. Format: `[west, south, east, north]`.                                                                                    |
+| `properties`       | [PDD Properties Object](#312-pdd-properties-object) | **REQUIRED.** Domain-specific metadata about the project.                                                                                                            |
+| `ledger_reference` | [Ledger Reference Object](#313-ledger-reference-object) | OPTIONAL. Added by the registry or notarization service. Records the hash anchoring on-chain. Immutable proof of document existence.                                                                        |
+| `links`            | \[[Link Object](#314-link-object)]                      | OPTIONAL. Related resources such as methodologies, MRVs, and provenance relations. MUST include at least a `self` link if present.                                                                          |
+
+> **Control Metadata Principle**: All fields outside `properties` are control metadata supporting governance, versioning, lifecycle traceability, and interoperability. They MUST NOT be altered during domain-specific content editing.
+
+#### 3.1.2 PDD Properties Object
+
+The `properties` object contains project-specific metadata owned and edited by the project proponent. These fields support validation, monitoring, lifecycle transitions, and CRU issuance.
+
+| Field Name      | Type   | Description                                                                                                                                                                       |
+| --------------- | ------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `name`          | string | **REQUIRED.** Human-readable project name. Should remain stable across document versions.                                                                                         |
+| `description`   | string | Short summary of project goals, scope, and expected outcomes.                                                                                                                     |
+| `creation_date` | string | ISO 8601 date of initial submission. Immutable.                                                                                                                                   |
+| `last_updated`  | string | ISO 8601 timestamp of last substantive update. Updated only when project content changes, not ledger metadata.                                                                    |
+| `project_type`  | string | Classification of removal activity (e.g., `"soil_carbon"`, `"afforestation"`). SHOULD align with methodology domain.                                                              |
+| `status`        | string | Current PDD lifecycle state. MUST be one of: `draft`, `submitted`, `under_review`, `approved`, `rejected`, `archived`. Used to control downstream actions. |
+| `version`       | string | Version label of the PDD payload. Follows internal project versioning scheme (e.g., `"v1.0"`).                                                                                     |
+| `actor_id`      | string | Reference to the authorized project proponent, as defined in the [Actor Profile](actor.md). MUST be resolvable.                                                                   |
+
+#### 3.1.3 Ledger Reference Object
+
+This object links the PDD to its notarized state on a blockchain or distributed ledger. It is added post-submission and is used for anchoring, integrity proof, and non-repudiation.
+
+| Field Name       | Type    | Description                                                                                                                            |
+| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| `transaction_id` | string  | **REQUIRED.** Transaction hash or ID on the ledger. Used to verify the presence of the content hash on-chain.                          |
+| `block_number`   | integer | **REQUIRED.** Block number containing the transaction. Aids in timeline reconstruction and conflict resolution.                        |
+| `timestamp`      | string  | **REQUIRED.** ISO 8601 UTC timestamp of the notarization event.                                                                        |
+| `ledger_id`      | string  | **REQUIRED.** Identifier of the ledger network (e.g., `eth-mainnet`, `polygon-testnet`). Used for multi-ledger resolution.             |
+
+#### 3.1.4 Link Object
+
+Links define structured relationships between PDDs and related documents, enabling traceability and navigation within the registry system.
+
+| Field   | Type   | Description                                                           |
+| ------- | ------ | --------------------------------------------------------------------- |
+| `rel`   | string | **REQUIRED.** Relationship type.                                      |
+| `href`  | string | **REQUIRED.** Fully qualified URI of the linked resource.             |
+| `type`  | string | Optional MIME type of the target resource (e.g., `application/json`). |
+| `title` | string | Optional human-readable description of the resource.                  |
+
+**Recommended `rel` values**: `self`, `related-mrv`, `methodology`, `monitor`, `predecessor`, `successor`.
+
+**Best Practices**
+
+* Use HTTPS URIs that are resolvable and permanent.
+* Avoid relative URLs; use absolute paths to ensure portability.
+* Provide `type` and `title` where applicable to facilitate automated and human interpretation.
+
+#### 3.1.5 Canonical Serialization and Ledger Anchoring
+
+CRGF PDD documents MUST be serialized deterministically prior to cryptographic hashing for ledger anchoring. The hash SHALL be computed on the canonical JSON string using SHA-256 or another registry-approved algorithm.
+
+**Hash Scope**
+
+The entire PDD object, including nested fields, SHALL be included in the canonical serialization. If the `ledger_reference` field is present, it MUST be removed prior to serialization to avoid circular dependencies.
+
+**Canonicalization Rules**
+
+1. Object keys SHALL be sorted lexicographically at all levels.
+2. Insignificant whitespace SHALL be removed.
+3. The resulting JSON string SHALL be UTF-8 encoded before hashing.
+
+#### 3.1.6 Registry Workflow Integration
+
+The PDD plays a foundational role in the lifecycle of a carbon project within a registry system.
+
+1. **Preparation** – The project proponent prepares the PDD according to the CRGF schema and lifecycle rules.
+2. **Submission to Registry** – The PDD is submitted to a compliant registry endpoint via the API, typically in the `draft` state.
+3. **Schema Conformance Check** – The registry performs automated checks against `pdd-schema.json` to verify required fields, geometry, and link consistency.
+4. **Canonicalization and Hashing** – After conformance, the PDD (excluding `ledger_reference`) is canonically serialized and hashed.
+5. **Ledger Anchoring** – The hash is notarized on the ledger and the resulting `ledger_reference` is injected into the document.
+6. **State Transition** – Upon successful anchoring, the PDD transitions to a new lifecycle state (`submitted` or `approved`) according to registry policy. No further edits are permitted.
 
 ### 3.2 Monitoring, Reporting, and Verification (MRV)
 
