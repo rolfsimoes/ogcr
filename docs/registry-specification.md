@@ -44,7 +44,7 @@ This specification defines a three-layer architecture required for all conformin
 
 * The **Application Layer** provides interfaces for human and machine actors. This includes web portals, mobile applications, and automated clients. It SHALL support identity delegation, task execution, and interaction with the API layer.
 
-* The **API Layer** exposes a RESTful interface for managing lifecycle operations on registry artifacts. It SHALL implement document validation, access control, schema enforcement, and canonical serialization of [PDDs](#31-project-design-document-pdd), [MRVs](#32-monitoring-reporting-and-verification-mrv), and [CRUs](#33-carbon-removal-units-crus). It MAY coordinate with external systems such as verification bodies or monitoring data providers.
+* The **API Layer** exposes a RESTful interface for managing lifecycle operations on registry artifacts. It SHALL implement document validation, access control, schema enforcement, and canonical serialization of [PDDs](#31-project-design-document-pdd), [MRVs](#32-monitoring-reporting-and-verification-mrv), and [CRUs](#34-carbon-removal-units-crus). It MAY coordinate with external systems such as verification bodies or monitoring data providers.
 
 * The **Ledger Layer** anchors critical registry state to an immutable, cryptographically verifiable record. It SHALL record document hashes, lifecycle events, and token-related operations. It MUST support auditability and MAY expose events for off-chain synchronization.
 
@@ -58,7 +58,7 @@ This specification defines the canonical data flows required to support lifecycl
 
 * **Monitoring and Verification** involves the submission of [Monitoring, Reporting, and Verification (MRV)](#32-monitoring-reporting-and-verification-mrv) documents for approved projects. These documents SHALL include quantified removal estimates, methodology-specific inputs, and verification metadata. Verified MRVs SHALL be cryptographically linked to the corresponding PDDs and SHALL serve as the basis for issuance.
 
-* **Credit Management** includes the creation, transfer, and retirement of [Carbon Removal Units (CRUs)](#33-carbon-removal-units-crus). Each CRU SHALL represent a verified quantity of net removal and SHALL be traceable to its source MRV. All issuance and lifecycle operations MUST be anchored on-chain and recorded for auditability.
+* **Credit Management** includes the creation, transfer, and retirement of [Carbon Removal Units (CRUs)](#34-carbon-removal-units-crus). Each CRU SHALL represent a verified quantity of net removal and SHALL be traceable to its source MRV. All issuance and lifecycle operations MUST be anchored on-chain and recorded for auditability.
 
 These flows are mandatory for conformance and SHALL be implemented in accordance with the interface, validation, and ledger requirements defined in this specification.
 
@@ -98,8 +98,8 @@ The Project Design Document (PDD) defines the foundational parameters of a carbo
 | `geometry`         | GeoJSON Geometry Object                             | **REQUIRED.** Geographic footprint of the project. MUST comply with [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946). Typically a `Polygon` or `MultiPolygon`. Used for spatial indexing and MRV validation. |
 | `bbox`             | \[number]                                           | REQUIRED if `geometry` is not null. Bounding box array for fast spatial filtering. Format: `[west, south, east, north]`.                                                                                    |
 | `properties`       | [PDD Properties Object](#312-pdd-properties-object) | **REQUIRED.** Domain-specific metadata about the project.                                                                                                            |
-| `ledger_reference` | [Ledger Reference Object](#313-ledger-reference-object) | OPTIONAL. Added by the registry or notarization service. Records the hash anchoring on-chain. Immutable proof of document existence.                                                                        |
-| `links`            | \[[Link Object](#314-link-object)]                      | OPTIONAL. Related resources such as methodologies, MRVs, and provenance relations. MUST include at least a `self` link if present.                                                                          |
+| `ledger_reference` | [Ledger Reference Object](#331-ledger-reference-object) | OPTIONAL. Added by the registry or notarization service. Records the hash anchoring on-chain. Immutable proof of document existence.                                                                        |
+| `links`            | \[[Link Object](#332-link-object)]                      | OPTIONAL. Related resources such as methodologies, MRVs, and provenance relations. MUST include at least a `self` link if present.                                                                          |
 
 > **Control Metadata Principle**: All fields outside `properties` are control metadata supporting governance, versioning, lifecycle traceability, and interoperability. They MUST NOT be altered during domain-specific content editing.
 
@@ -118,37 +118,7 @@ The `properties` object contains project-specific metadata owned and edited by t
 | `version`       | string | Version label of the PDD payload. Follows internal project versioning scheme (e.g., `"v1.0"`).                                                                                     |
 | `actor_id`      | string | Reference to the authorized project proponent, as defined in the [Actor Profile](actor.md). MUST be resolvable.                                                                   |
 
-#### 3.1.3 Ledger Reference Object
-
-This object links the PDD to its notarized state on a blockchain or distributed ledger. It is added post-submission and is used for anchoring, integrity proof, and non-repudiation.
-
-| Field Name       | Type    | Description                                                                                                                            |
-| ---------------- | ------- | -------------------------------------------------------------------------------------------------------------------------------------- |
-| `transaction_id` | string  | **REQUIRED.** Transaction hash or ID on the ledger. Used to verify the presence of the content hash on-chain.                          |
-| `block_number`   | integer | **REQUIRED.** Block number containing the transaction. Aids in timeline reconstruction and conflict resolution.                        |
-| `timestamp`      | string  | **REQUIRED.** ISO 8601 UTC timestamp of the notarization event.                                                                        |
-| `ledger_id`      | string  | **REQUIRED.** Identifier of the ledger network (e.g., `eth-mainnet`, `polygon-testnet`). Used for multi-ledger resolution.             |
-
-#### 3.1.4 Link Object
-
-Links define structured relationships between PDDs and related documents, enabling traceability and navigation within the registry system.
-
-| Field   | Type   | Description                                                           |
-| ------- | ------ | --------------------------------------------------------------------- |
-| `rel`   | string | **REQUIRED.** Relationship type.                                      |
-| `href`  | string | **REQUIRED.** Fully qualified URI of the linked resource.             |
-| `type`  | string | Optional MIME type of the target resource (e.g., `application/json`). |
-| `title` | string | Optional human-readable description of the resource.                  |
-
-**Recommended `rel` values**: `self`, `related-mrv`, `methodology`, `monitor`, `predecessor`, `successor`.
-
-**Best Practices**
-
-* Use HTTPS URIs that are resolvable and permanent.
-* Avoid relative URLs; use absolute paths to ensure portability.
-* Provide `type` and `title` where applicable to facilitate automated and human interpretation.
-
-#### 3.1.5 Canonical Serialization and Ledger Anchoring
+#### 3.1.3 Canonical Serialization and Ledger Anchoring
 
 CRGF PDD documents MUST be serialized deterministically prior to cryptographic hashing for ledger anchoring. The hash SHALL be computed on the canonical JSON string using SHA-256 or another registry-approved algorithm.
 
@@ -162,7 +132,7 @@ The entire PDD object, including nested fields, SHALL be included in the canonic
 2. Insignificant whitespace SHALL be removed.
 3. The resulting JSON string SHALL be UTF-8 encoded before hashing.
 
-#### 3.1.6 Registry Workflow Integration
+#### 3.1.4 Registry Workflow Integration
 
 The PDD plays a foundational role in the lifecycle of a carbon project within a registry system.
 
@@ -175,13 +145,147 @@ The PDD plays a foundational role in the lifecycle of a carbon project within a 
 
 ### 3.2 Monitoring, Reporting, and Verification (MRV)
 
-The MRV document captures quantitative results from project monitoring and verification activities. Each MRV SHALL reference a single parent PDD and SHALL represent a defined monitoring period. Overlapping reporting periods for the same project SHALL be disallowed.
+The MRV document captures quantitative results from project monitoring and verification activities. Serialized as a GeoJSON Feature, it records monitoring periods, methodology inputs, net removal calculations, and verification outcomes. Each MRV MUST link to a single parent PDD and represent a distinct monitoring interval.
 
-MRV documents SHALL include temporal coverage, methodology-specific inputs, calculated net removal values, and uncertainty estimates. Measurement types MAY include field observations, remote sensing outputs, or direct measurement instruments, subject to methodology compatibility.
+#### 3.2.1 MRV Fields
 
-Verification metadata SHALL be included for independently validated MRVs. This MAY contain verifier identity, accreditation ID, verification outcome, and date. Verified MRVs form the basis for issuance of removal attestations.
+| Field Name         | Type                                                | Description                                                                                                                                 |
+| ------------------ | --------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `type`             | string                                              | **REQUIRED.** MUST be `"Feature"` per GeoJSON. Identifies the object as a geographic feature with spatial footprint and metadata.            |
+| `id`               | string                                              | **REQUIRED.** Globally unique, immutable identifier for the MRV. MUST be stable across versions. Recommended: UUIDv4 or hash-based ID.      |
+| `crgf_version`     | string                                              | **REQUIRED.** Indicates the version of the CRGF spec this document conforms to. Follows [Semantic Versioning](https://semver.org).          |
+| `profile`          | string                                              | **REQUIRED.** MUST be `"mrv"`. Identifies the document type for validation purposes.                                                        |
+| `geometry`         | GeoJSON Geometry Object                             | **REQUIRED.** Geographic footprint of the project. MUST comply with [RFC 7946](https://datatracker.ietf.org/doc/html/rfc7946).               |
+| `bbox`             | [number]                                           | REQUIRED if `geometry` is not null. Bounding box array for fast spatial filtering. Format: `[west, south, east, north]`.                   |
+| `properties`       | [MRV Properties Object](#322-mrv-properties-object) | **REQUIRED.** Domain-specific metadata about the monitoring results, calculations, and verification status.                               |
+| `ledger_reference` | [Ledger Reference Object](#331-ledger-reference-object) | OPTIONAL. Added by the registry or notarization service. Records the hash anchoring on-chain.                                             |
+| `links`            | [[Link Object](#332-link-object)]                   | OPTIONAL. Related resources such as methodologies, PDDs, datasets, and provenance relations. MUST include at least a `self` link if present. |
 
-### 3.3 Carbon Removal Units (CRUs)
+> **Control Metadata Principle**: All fields outside `properties` are control metadata supporting governance, versioning, lifecycle traceability, and interoperability. They MUST NOT be altered during domain-specific content editing.
+
+#### 3.2.2 MRV Properties Object
+
+The `properties` object encapsulates the domain-specific content of the MRV document, including monitoring results, calculations, and verification status.
+
+| Field Name             | Type                                                        | Description                                                                                                                                    |
+| ---------------------- | ----------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| `project_id`           | string                                                      | **REQUIRED.** References the `id` of the associated PDD Feature. Ensures the MRV is correctly linked to a certified project scope.            |
+| `methodology_id`       | string                                                      | **REQUIRED.** Identifier of the methodology applied for monitoring and calculation. Enables schema validation of methodology data.            |
+| `start_date`           | string (ISO 8601)                                           | **REQUIRED.** Start date of the monitoring period covered by this report.                                                                      |
+| `end_date`             | string (ISO 8601)                                           | **REQUIRED.** End date of the monitoring period covered by this report.                                                                        |
+| `methodology_data`     | [Methodology Data Object](#323-methodology-data-object)     | **REQUIRED.** Structured container for method-specific measurements and inputs.                                                                |
+| `net_removal_estimate` | [Net Removal Estimate Object](#324-net-removal-estimate-object) | **REQUIRED.** Reported net benefit of the monitoring period, including unit and basis.                                                        |
+| `total_uncertainty`    | [Uncertainty Object](#325-uncertainty-object)               | OPTIONAL. Characterizes the uncertainty of the benefit estimate.                                                                               |
+| `verification_status`  | string (enum)                                               | OPTIONAL. Current verification state. Valid values: `unverified`, `pending`, `verified`, `rejected`.                                           |
+| `verification_date`    | string (ISO 8601)                                           | OPTIONAL. Date when verification was completed. Required if `verification_status = verified`.                                                  |
+| `verifier_info`        | [Verifier Object](#326-verifier-object)                     | OPTIONAL. Information about the verifying entity or person.                                                                                    |
+| `raw_data`             | array of [Raw Data Reference](#327-raw-data-reference-object) | OPTIONAL. References to original measurement datasets or acquisition sources.                                                                  |
+| `links`                | array of [Link Object](#332-link-object)                    | OPTIONAL. External or internal references, e.g., related documentation, datasets, registry entries.                                            |
+
+#### 3.2.3 Methodology Data Object
+
+| Field Name            | Type                                     | Description                                                                                                 |
+| --------------------- | ---------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| `parameters`          | object                                   | Key-value map of input parameters specific to the methodology.                                              |
+| `measurement_devices` | array of object              | Description of the instruments used to collect data, including identifiers or model information.             |
+| `sampling_strategy`   | string                                   | Description of spatial or temporal sampling approach.                                                       |
+| `data_quality_flags`  | object                                   | Optional flags or indicators on data reliability.                                                           |
+| `processing_notes`    | string                                   | Free text field for preprocessing, adjustments, or calculation assumptions.                                 |
+
+#### 3.2.4 Net Removal Estimate Object
+
+| Field Name | Type   | Description                                           |
+| ---------- | ------ | ----------------------------------------------------- |
+| `value`    | number | **REQUIRED.** Estimated net removal quantity.         |
+| `unit`     | string | **REQUIRED.** Measurement unit (e.g., `"tCO2e"`).     |
+| `basis`    | string | OPTIONAL. Description of the calculation context.     |
+
+#### 3.2.5 Uncertainty Object
+
+| Field Name         | Type   | Description                             |
+| ------------------ | ------ | --------------------------------------- |
+| `min`              | number | Lower bound of uncertainty interval.    |
+| `max`              | number | Upper bound of uncertainty interval.    |
+| `confidence_level` | number | Confidence level (e.g., `0.95` for 95%). |
+
+#### 3.2.6 Verifier Object
+
+| Field Name         | Type   | Description                                            |
+| ------------------ | ------ | ------------------------------------------------------ |
+| `organization`     | string | Name of the verifying organization.                    |
+| `accreditation_id` | string | Accreditation identifier issued by a registry or body. |
+| `reviewer_name`    | string | OPTIONAL. Individual responsible for the review.       |
+
+#### 3.2.7 Raw Data Reference Object
+
+| Field Name    | Type   | Description                                                             |
+| ------------- | ------ | ----------------------------------------------------------------------- |
+| `id`          | string | Unique identifier for the raw data source.                              |
+| `type`        | string | Type of data (e.g., `"lidar"`, `"soil_sample"`, `"satellite_imagery"`). |
+| `access_uri`  | string | URI or path where the data can be retrieved.                            |
+| `description` | string | Short description of the dataset.                                       |
+
+#### 3.2.8 Canonical Serialization and Ledger Anchoring
+
+MRV documents MUST be serialized deterministically prior to cryptographic hashing for ledger anchoring. The canonicalization and hashing requirements are identical to those defined in [Section 3.1.3](#313-canonical-serialization-and-ledger-anchoring). The `ledger_reference` field is added after hashing and MUST NOT be included in the hash input.
+
+### 3.3 Common Object Structures
+
+Canonical object definitions reused across PDD and MRV documents.
+
+#### 3.3.1 Ledger Reference Object
+
+This object links canonical documents (e.g., PDDs and MRVs) to their notarized state on a blockchain or distributed ledger. It is added post-submission and is used for anchoring, integrity proof, and non-repudiation.
+
+| Field Name       | Type    | Description |
+| ---------------- | ------- | ----------- |
+| `transaction_id` | string  | **REQUIRED.** Transaction hash or ID on the ledger. Used to verify the presence of the content hash on-chain. |
+| `block_number`   | integer | **REQUIRED.** Block number containing the transaction. Aids in timeline reconstruction and conflict resolution. |
+| `timestamp`      | string  | **REQUIRED.** ISO 8601 UTC timestamp of the notarization event. |
+| `ledger_id`      | string  | **REQUIRED.** Identifier of the ledger network (e.g., `eth-mainnet`, `polygon-testnet`). Used for multi-ledger resolution. |
+
+#### 3.3.2 Link Object
+
+Links define structured relationships between canonical documents, enabling traceability and navigation within the registry system.
+
+| Field   | Type   | Description |
+| ------- | ------ | ----------- |
+| `rel`   | string | **REQUIRED.** Relationship type. |
+| `href`  | string | **REQUIRED.** Fully qualified URI of the linked resource. |
+| `type`  | string | Optional MIME type of the target resource (e.g., `application/json`). |
+| `title` | string | Optional human-readable description of the resource. |
+
+##### Recommended `rel` values for PDD
+
+| `rel` value   | Description |
+| ------------- | ----------- |
+| `self`        | Link to the current PDD document instance. |
+| `related-mrv` | Reference to an associated MRV document. |
+| `methodology` | Link to the methodology document referenced by the PDD. |
+| `monitor`     | External monitoring data sources. |
+| `predecessor` | Link to a previous version of the PDD. |
+| `successor`   | Link to the next version of the PDD (if available). |
+
+##### Recommended `rel` values for MRV
+
+| `rel` value      | Description |
+| ---------------- | ----------- |
+| `self`           | Link to the current MRV document instance. |
+| `pdd`            | Reference to the associated Project Design Document. |
+| `methodology`    | Link to the methodology used for calculations and verification. |
+| `supporting-doc` | External documents providing evidence or reports supporting the MRV claims. |
+| `data-source`    | Source systems or repositories containing raw monitoring data. |
+| `verifier`       | Profile or identifier of the verifying entity or actor. |
+| `predecessor`    | Link to a previous version of the MRV document. |
+| `successor`      | Link to the next version of the MRV document (if available). |
+
+##### Best Practices
+
+* Use HTTPS URIs that are resolvable and permanent.
+* Avoid relative URLs; use absolute paths to ensure portability.
+* Provide `type` and `title` where applicable to facilitate automated and human interpretation.
+
+### 3.4 Carbon Removal Units (CRUs)
 
 Carbon Removal Units (CRUs) represent attested net removals of CO₂ equivalent. Each CRU SHALL be linked to a validated MRV and a parent PDD, and SHALL correspond to a quantifiable and verifiable removal amount.
 
